@@ -92,11 +92,11 @@ kotlin {
 }
 
 android {
-    namespace = "com.example.kmmreduxtemplate"
+    namespace = "com.turbosokol.kmmreduxtemplate"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.example.kmmreduxtemplate"
+        applicationId = "com.turbosokol.kmmreduxtemplate"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
@@ -124,11 +124,11 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "com.example.kmmreduxtemplate.MainKt"
+        mainClass = "com.turbosokol.kmmreduxtemplate.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.example.kmmreduxtemplate"
+            packageName = "com.turbosokol.kmmreduxtemplate"
             packageVersion = "1.0.0"
         }
     }

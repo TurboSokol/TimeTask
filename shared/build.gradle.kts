@@ -87,7 +87,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.example.kmmreduxtemplate.shared"
+    namespace = "com.turbosokol.kmmreduxtemplate.shared"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

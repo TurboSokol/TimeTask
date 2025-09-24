@@ -4,10 +4,10 @@ plugins {
     application
 }
 
-group = "com.example.kmmreduxtemplate"
+group = "com.turbosokol.kmmreduxtemplate"
 version = "1.0.0"
 application {
-    mainClass.set("com.example.kmmreduxtemplate.ApplicationKt")
+    mainClass.set("com.turbosokol.kmmreduxtemplate.ApplicationKt")
     
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
