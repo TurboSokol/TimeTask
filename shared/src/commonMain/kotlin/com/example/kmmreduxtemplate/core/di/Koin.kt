@@ -15,6 +15,7 @@ import com.example.kmmreduxtemplate.navigation.NavigationMiddleware
 import com.example.kmmreduxtemplate.navigation.NavigationReducer
 import com.example.kmmreduxtemplate.repository.MainNetworkApi
 import com.example.kmmreduxtemplate.repository.MainNetworkApiImpl
+import com.example.kmmreduxtemplate.screensStates.HomeScreenReducer
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
@@ -38,7 +39,8 @@ val storeModule = module {
         ReduxStore(
             reducer = RootReducer(
                 appReducer = get(),
-                navigationReducer = get()
+                navigationReducer = get(),
+                homeScreenReducer = get()
             ),
             defaultValue = AppState(),
             middlewares = listOf(
@@ -50,6 +52,7 @@ val storeModule = module {
 
     single { AppReducer() }
     single { NavigationReducer() }
+    single { HomeScreenReducer() }
 }
 
 val apiModule = module {

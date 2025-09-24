@@ -12,6 +12,10 @@ object Dimensions {
     //paddings
     val paddingMicro = 1.dp
     val paddingSmall = 12.dp
+    val paddingHalfMedium = 8.dp
+    val paddingQuaterMedium = 4.dp
+    val paddingMedium = 16.dp
+
 
     //corners
     val cornerMedium = 8.dp
