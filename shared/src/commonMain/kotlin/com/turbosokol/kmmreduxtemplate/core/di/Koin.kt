@@ -15,7 +15,16 @@ import com.turbosokol.kmmreduxtemplate.navigation.NavigationMiddleware
 import com.turbosokol.kmmreduxtemplate.navigation.NavigationReducer
 import com.turbosokol.kmmreduxtemplate.repository.MainNetworkApi
 import com.turbosokol.kmmreduxtemplate.repository.MainNetworkApiImpl
+import com.turbosokol.kmmreduxtemplate.repository.TaskRepository
+import com.turbosokol.kmmreduxtemplate.repository.LocalTaskRepositoryImpl
+import com.turbosokol.kmmreduxtemplate.core.lifecycle.AppLifecycleManager
+import com.turbosokol.kmmreduxtemplate.database.TaskDatabase
+import com.turbosokol.kmmreduxtemplate.repository.datasource.LocalTaskDataSource
+import com.turbosokol.kmmreduxtemplate.repository.datasource.SqlDelightLocalTaskDataSource
+import com.turbosokol.kmmreduxtemplate.screensStates.HomeScreenMiddleware
 import com.turbosokol.kmmreduxtemplate.screensStates.HomeScreenReducer
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
@@ -30,8 +39,11 @@ import kotlin.time.ExperimentalTime
 @ExperimentalTime
 fun initSharedKoin(appDeclaration: KoinAppDeclaration = {}) = startKoin {
     appDeclaration()
-    modules(storeModule, apiModule, serviceModule)
+    modules(storeModule, repositoryModule, databaseModule(), lifecycleModule, apiModule, serviceModule)
 }
+
+// Expect platform-specific database module
+expect fun databaseModule(): org.koin.core.module.Module
 
 @ExperimentalTime
 val storeModule = module {
@@ -45,7 +57,8 @@ val storeModule = module {
             defaultValue = AppState(),
             middlewares = listOf(
                 AppMiddleware(),
-                NavigationMiddleware()
+                NavigationMiddleware(),
+                get<HomeScreenMiddleware>()
             )
         )
     }
@@ -53,10 +66,32 @@ val storeModule = module {
     single { AppReducer() }
     single { NavigationReducer() }
     single { HomeScreenReducer() }
+    single { HomeScreenMiddleware(get<TaskRepository>()) }
+}
+
+val repositoryModule = module {
+    // Data sources
+    single<LocalTaskDataSource> { SqlDelightLocalTaskDataSource(get()) }
+    // Note: RemoteTaskDataSource removed for now - will add back when remote is ready
+    
+    // Coroutine dispatcher
+    single<CoroutineDispatcher> { Dispatchers.Default }
+    
+    // Repository - using local-only implementation for now
+    single<TaskRepository> { 
+        LocalTaskRepositoryImpl(
+            localDataSource = get(),
+            ioDispatcher = get()
+        )
+    }
 }
 
 val apiModule = module {
     factory<MainNetworkApi> { MainNetworkApiImpl(get()) }
+}
+
+val lifecycleModule = module {
+    single<AppLifecycleManager> { AppLifecycleManager(get()) }
 }
 
 @ExperimentalTime

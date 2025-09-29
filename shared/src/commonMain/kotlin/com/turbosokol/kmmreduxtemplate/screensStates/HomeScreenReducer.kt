@@ -11,82 +11,75 @@ import com.turbosokol.kmmreduxtemplate.core.redux.Reducer
 class HomeScreenReducer : Reducer<HomeScreenState> {
     override fun reduce(oldState: HomeScreenState, action: Action): HomeScreenState {
         return when (action) {
-            is HomeScreenAction.ToggleTaskTimer -> {
-                val updatedTasks = oldState.tasks.map { task ->
-                    if (task.id == action.taskId) {
-                        task.copy(isActive = !task.isActive)
-                    } else {
-                        task
-                    }
-                }
-                oldState.copy(tasks = updatedTasks)
+            // UI-only actions that don't require persistence are handled by middleware
+            is HomeScreenAction.ToggleTaskTimer,
+            is HomeScreenAction.UpdateTaskTime,
+            is HomeScreenAction.ResetTaskTime,
+            is HomeScreenAction.CreateTask,
+            is HomeScreenAction.EditTask,
+            is HomeScreenAction.DeleteTask,
+            is HomeScreenAction.SaveAppState -> {
+                // These actions are handled by middleware and result in repository updates
+                // State updates come through TaskUpdated/TaskCreated/TaskDeleted actions
+                oldState
             }
             
-            is HomeScreenAction.UpdateTaskTime -> {
-                val updatedTasks = oldState.tasks.map { task ->
-                    if (task.id == action.taskId) {
-                        task.copy(
-                            timeSeconds = action.timeSeconds,
-                            timeHours = action.timeHours
-                        )
-                    } else {
-                        task
-                    }
-                }
-                oldState.copy(tasks = updatedTasks)
+            // Repository-driven actions
+            is HomeScreenAction.LoadTasks -> {
+                oldState.copy(isLoading = true, error = null)
             }
             
-            is HomeScreenAction.ResetTaskTime -> {
-                val updatedTasks = oldState.tasks.map { task ->
-                    if (task.id == action.taskId) {
-                        task.copy(
-                            timeSeconds = 0L,
-                            timeHours = 0.0,
-                            isActive = false  // Also stop the timer when resetting
-                        )
-                    } else {
-                        task
-                    }
-                }
-                oldState.copy(tasks = updatedTasks)
-            }
-            
-            is HomeScreenAction.CreateTask -> {
-                val newTaskId = (oldState.tasks.maxOfOrNull { it.id } ?: 0) + 1
-                val newTask = TaskItem(
-                    id = newTaskId,
-                    title = action.title,
-                    description = action.description,
-                    isActive = false,
-                    timeSeconds = 0L,
-                    timeHours = 0.0,
-                    color = action.color
+            is HomeScreenAction.TasksLoaded -> {
+                oldState.copy(
+                    tasks = action.tasks,
+                    isLoading = false,
+                    error = null,
+                    firstLaunch = false  // Mark that initial database load is complete
                 )
-                oldState.copy(tasks = listOf(newTask) + oldState.tasks)
             }
             
-            is HomeScreenAction.EditTask -> {
-                val updatedTasks = oldState.tasks.map { task ->
-                    if (task.id == action.taskId) {
-                        task.copy(
-                            title = action.title,
-                            description = action.description,
-                            color = action.color,
-                            timeSeconds = action.timeSeconds,
-                            timeHours = action.timeHours
-                        )
-                    } else {
-                        task
+            is HomeScreenAction.TaskCreated -> {
+                // Replace local optimistic task with server response
+                val existingTask = oldState.tasks.find { it.id == action.task.id }
+                if (existingTask != null) {
+                    // Update existing task with server data
+                    val updatedTasks = oldState.tasks.map { task ->
+                        if (task.id == action.task.id) action.task else task
                     }
+                    oldState.copy(tasks = updatedTasks, firstLaunch = false)
+                } else {
+                    // Add new task
+                    oldState.copy(tasks = listOf(action.task) + oldState.tasks, firstLaunch = false)
                 }
-                oldState.copy(tasks = updatedTasks)
             }
             
-            is HomeScreenAction.DeleteTask -> {
+            is HomeScreenAction.TaskUpdated -> {
+                val updatedTasks = oldState.tasks.map { task ->
+                    if (task.id == action.task.id) action.task else task
+                }
+                oldState.copy(tasks = updatedTasks, firstLaunch = false)
+            }
+            
+            is HomeScreenAction.TaskDeleted -> {
                 val updatedTasks = oldState.tasks.filter { task ->
                     task.id != action.taskId
                 }
-                oldState.copy(tasks = updatedTasks)
+                oldState.copy(tasks = updatedTasks, firstLaunch = false)
+            }
+            
+            is HomeScreenAction.AppStateSaved -> {
+                // App state has been successfully saved to local and remote
+                println("App state saved successfully")
+                oldState
+            }
+            
+            is HomeScreenAction.TaskOperationFailed -> {
+                println("Task operation failed: ${action.message}")
+                oldState.copy(
+                    isLoading = false,
+                    error = action.message,
+                    firstLaunch = false  // Mark initial load as complete even if it failed
+                )
             }
 
             else -> oldState

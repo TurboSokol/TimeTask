@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
@@ -64,21 +65,33 @@ kotlin {
             
             // Android-specific Koin
             implementation(libs.koin.android)
+            
+            // SQLDelight for Android
+            implementation(libs.sqldelight.driver.android)
         }
         
         iosMain.dependencies {
             // iOS-specific Ktor client
             implementation(libs.ktor.client.darwin)
+            
+            // SQLDelight for iOS
+            implementation(libs.sqldelight.driver.native)
         }
         
         jvmMain.dependencies {
             // JVM-specific Ktor client
             implementation(libs.ktor.client.java)
+            
+            // SQLDelight for JVM  
+            implementation(libs.sqldelight.driver.jdbc)
         }
         
         wasmJsMain.dependencies {
             // WASM/JS-specific Ktor client
             implementation(libs.ktor.client.js)
+            
+            // SQLDelight for Web
+            implementation(libs.sqldelight.driver.js)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -95,5 +108,13 @@ android {
     }
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
+    }
+}
+
+sqldelight {
+    databases {
+        create("TaskDatabase") {
+            packageName.set("com.turbosokol.kmmreduxtemplate.database")
+        }
     }
 }

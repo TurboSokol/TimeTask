@@ -3,6 +3,9 @@ package com.turbosokol.kmmreduxtemplate.di
 import com.turbosokol.kmmreduxtemplate.core.di.apiModule
 import com.turbosokol.kmmreduxtemplate.core.di.serviceModule
 import com.turbosokol.kmmreduxtemplate.core.di.storeModule
+import com.turbosokol.kmmreduxtemplate.core.di.repositoryModule
+import com.turbosokol.kmmreduxtemplate.core.di.lifecycleModule
+import com.turbosokol.kmmreduxtemplate.core.di.databaseModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 import kotlin.time.ExperimentalTime
@@ -18,8 +21,11 @@ fun initComposeAppKoin(appDeclaration: KoinAppDeclaration = {}) {
         appDeclaration()
         // Include shared modules from the shared module
         modules(
-            // Load shared modules
+            // Load shared modules (including all required dependencies)
             storeModule,
+            repositoryModule,
+            databaseModule(),      // Platform-specific database module
+            lifecycleModule,
             apiModule,
             serviceModule,
             // Add ComposeApp-specific modules

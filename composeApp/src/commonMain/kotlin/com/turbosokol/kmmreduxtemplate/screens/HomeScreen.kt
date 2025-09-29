@@ -78,6 +78,23 @@ fun HomeScreen(viewModel: ReduxViewModel) {
     val appState by viewModel.store.observeState().collectAsState()
     val homeState = appState.getHomeScreenState()
 
+    // Load tasks from database when screen first appears
+    LaunchedEffect(Unit) {
+        viewModel.execute(HomeScreenAction.LoadTasks)
+    }
+
+    // Safety timeout to ensure firstLaunch is always set to false
+    LaunchedEffect(homeState.firstLaunch) {
+        if (homeState.firstLaunch) {
+            delay(1000) // 1 seconds timeout
+            val currentState = viewModel.store.observeState().value.getHomeScreenState()
+            if (currentState.firstLaunch) {
+                // Force empty state if still in firstLaunch after timeout
+                viewModel.execute(HomeScreenAction.TasksLoaded(emptyList()))
+            }
+        }
+    }
+
     // Bottom sheet state management
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
     val coroutineScope = rememberCoroutineScope()
@@ -102,7 +119,13 @@ fun HomeScreen(viewModel: ReduxViewModel) {
                     onColorChange = { selectedColor = it },
                     onCreateTask = { title, description, color ->
                         if (title.isNotBlank()) {
-                            viewModel.execute(HomeScreenAction.CreateTask(title, description, color))
+                            viewModel.execute(
+                                HomeScreenAction.CreateTask(
+                                    title,
+                                    description,
+                                    color
+                                )
+                            )
                             isCreatingTask = false
                             taskTitle = ""
                             taskDescription = ""
@@ -206,7 +229,7 @@ fun HomeScreen(viewModel: ReduxViewModel) {
             )
 
             // Content over background
-    Column(
+            Column(
                 modifier = Modifier
                     .safeContentPadding()
                     .fillMaxSize()
@@ -224,34 +247,128 @@ fun HomeScreen(viewModel: ReduxViewModel) {
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
-                // Vertical RecyclerView (LazyColumn)
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(Dimensions.cornerMedium)
-                ) {
-                    items(homeState.tasks) { task ->
-                        TaskItemCard(
-                            task = task,
-                            viewModel = viewModel,
-                            onTaskClick = { taskToEdit ->
-                                editingTask = taskToEdit
-                                // Set up edit task state
-                            isCreatingTask = false
-                            editingTask = task
-                            taskTitle = task.title
-                            taskDescription = task.description
-                            selectedColor = task.color
-                            taskTimeSeconds = task.timeSeconds.toString()
-                            taskTimeHours = task.timeHours.toString()
-                            coroutineScope.launch {
-                                bottomSheetScaffoldState.bottomSheetState.expand()
+                // Main content
+                if (homeState.isLoading && homeState.firstLaunch) {
+                    // Loading state - only show during initial launch
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Loading tasks...",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                    }
+                } else if (homeState.error != null) {
+                    // Error state
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Error: ${homeState.error}",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Button(
+                                onClick = { viewModel.execute(HomeScreenAction.LoadTasks) },
+                                modifier = Modifier.padding(top = 16.dp)
+                            ) {
+                                Text("Retry")
                             }
+                        }
+                    }
+                } else if (homeState.tasks.isEmpty() && !homeState.firstLaunch) {
+                    // Empty state - only show after initial database load is complete
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            // Big + button
+                            FloatingActionButton(
+                                onClick = {
+                                    // Prepare for creating new task
+                                    isCreatingTask = true
+                                    editingTask = null
+                                    taskTitle = ""
+                                    taskDescription = ""
+                                    selectedColor = TaskItem.TaskColor.DEFAULT
+                                    taskTimeSeconds = ""
+                                    taskTimeHours = ""
+                                    coroutineScope.launch {
+                                        bottomSheetScaffoldState.bottomSheetState.expand()
+                                    }
+                                },
+                                modifier = Modifier
+                                    .padding(bottom = 24.dp)
+                                    .height(80.dp)
+                                    .width(80.dp),
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Add task",
+                                    modifier = Modifier.height(40.dp).width(40.dp),
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
                             }
-                        )
+                            
+                            Text(
+                                text = "No tasks yet",
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = "Tap the + button to create your first task",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                        }
+                    }
+                } else {
+                    // Tasks list
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(Dimensions.cornerMedium)
+                    ) {
+                        items(homeState.tasks) { task ->
+                            TaskItemCard(
+                                task = task,
+                                viewModel = viewModel,
+                                onTaskClick = { taskToEdit ->
+                                    editingTask = taskToEdit
+                                    // Set up edit task state
+                                    isCreatingTask = false
+                                    editingTask = task
+                                    taskTitle = task.title
+                                    taskDescription = task.description
+                                    selectedColor = task.color
+                                    taskTimeSeconds = task.timeSeconds.toString()
+                                    taskTimeHours = task.timeHours.toString()
+                                    coroutineScope.launch {
+                                        bottomSheetScaffoldState.bottomSheetState.expand()
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }
-            
+
             // Floating Action Button overlay
             FloatingActionButton(
                 onClick = {
