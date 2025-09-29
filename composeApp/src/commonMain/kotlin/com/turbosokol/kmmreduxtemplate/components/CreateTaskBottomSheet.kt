@@ -130,9 +130,6 @@ fun CreateTaskBottomSheet(
                 Text("Create Task")
             }
         }
-
-        // Bottom padding for better UX
-        Spacer(modifier = Modifier.height(Dimensions.paddingMedium * 4))
     }
 }
 
