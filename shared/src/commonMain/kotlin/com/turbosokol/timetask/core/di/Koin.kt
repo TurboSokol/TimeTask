@@ -1,5 +1,6 @@
 package com.turbosokol.TimeTask.core.di
 
+import com.turbosokol.TimeTask.core.lifecycle.AppLifecycleManager
 import com.turbosokol.TimeTask.core.network.KtorWebService
 import com.turbosokol.TimeTask.core.network.LogService
 import com.turbosokol.TimeTask.core.network.LogServiceImpl
@@ -13,12 +14,10 @@ import com.turbosokol.TimeTask.core.redux.app.AppState
 import com.turbosokol.TimeTask.core.redux.app.RootReducer
 import com.turbosokol.TimeTask.navigation.NavigationMiddleware
 import com.turbosokol.TimeTask.navigation.NavigationReducer
+import com.turbosokol.TimeTask.repository.LocalTaskRepositoryImpl
 import com.turbosokol.TimeTask.repository.MainNetworkApi
 import com.turbosokol.TimeTask.repository.MainNetworkApiImpl
 import com.turbosokol.TimeTask.repository.TaskRepository
-import com.turbosokol.TimeTask.repository.LocalTaskRepositoryImpl
-import com.turbosokol.TimeTask.core.lifecycle.AppLifecycleManager
-import com.turbosokol.TimeTask.repository.datasource.LocalTaskDataSource
 import com.turbosokol.TimeTask.screensStates.HomeScreenMiddleware
 import com.turbosokol.TimeTask.screensStates.HomeScreenReducer
 import kotlinx.coroutines.CoroutineDispatcher

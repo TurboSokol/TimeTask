@@ -6,7 +6,6 @@
 package com.turbosokol.TimeTask.repository.datasource
 
 import com.turbosokol.TimeTask.repository.data.TaskDto
-import kotlinx.coroutines.flow.Flow
 
 /**
  * Abstract interface for local task data persistence

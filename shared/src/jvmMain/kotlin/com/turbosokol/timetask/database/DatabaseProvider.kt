@@ -7,7 +7,6 @@ package com.turbosokol.TimeTask.database
 
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import com.turbosokol.TimeTask.database.TaskDatabase
 import java.io.File
 
 /**
@@ -94,7 +93,7 @@ object DatabaseProvider {
     
     private fun checkTableExists(driver: SqlDriver, tableName: String): Boolean {
         return try {
-            val result: String? = driver.executeQuery(null, 
+            val result: String? = driver.executeQuery(null,
                 "SELECT name FROM sqlite_master WHERE type='table' AND name=?", 
                 { cursor ->
                     if (cursor.next()) {

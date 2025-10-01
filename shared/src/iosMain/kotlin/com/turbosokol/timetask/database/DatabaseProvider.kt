@@ -7,7 +7,6 @@ package com.turbosokol.TimeTask.database
 
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.native.NativeSqliteDriver
-import com.turbosokol.TimeTask.database.TaskDatabase
 
 /**
  * iOS-specific database provider
