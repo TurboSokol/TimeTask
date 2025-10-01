@@ -9,6 +9,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.turbosokol.TimeTask.core.redux.app.AppState
+import com.turbosokol.TimeTask.localization.rememberPlatformLanguageDetector
 import com.turbosokol.TimeTask.navigation.NavigationState
 import com.turbosokol.TimeTask.screens.HomeScreen
 import com.turbosokol.TimeTask.screensStates.HomeScreenState
@@ -26,6 +27,9 @@ import org.koin.compose.viewmodel.koinViewModel
 @Preview
 @Composable
 fun MainScreenWithBottomNavBar() {
+    // Initialize platform language detection at app level
+    rememberPlatformLanguageDetector()
+    
     val viewModel: ReduxViewModel = koinViewModel()
 
     val stateFlow: StateFlow<AppState> = viewModel.store.observeState()

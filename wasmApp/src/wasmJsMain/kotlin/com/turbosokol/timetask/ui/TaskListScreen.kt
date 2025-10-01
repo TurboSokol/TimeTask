@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.turbosokol.TimeTask.data.Task
+import com.turbosokol.TimeTask.localization.LocalizationManager
 import com.turbosokol.TimeTask.repository.TaskRepository
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -41,14 +42,14 @@ fun TaskListScreen() {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("TimeTask - WASM") }
+                title = { Text(LocalizationManager.getString("timetask_wasm")) }
             )
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAddDialog = true }
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Task")
+                Icon(Icons.Default.Add, contentDescription = LocalizationManager.getString("add_task"))
             }
         }
     ) { paddingValues ->
@@ -64,7 +65,7 @@ fun TaskListScreen() {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No tasks yet. Add one to get started!",
+                        text = LocalizationManager.getString("no_tasks_yet_wasm"),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -145,7 +146,7 @@ fun TaskItem(
                     // Note: In a real app, you'd handle the async operation properly
                 }
             ) {
-                Text("Delete")
+                Text(LocalizationManager.getString("delete"))
             }
         }
     }
@@ -161,20 +162,20 @@ fun AddTaskDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add New Task") },
+        title = { Text(LocalizationManager.getString("add_new_task")) },
         text = {
             Column {
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Title") },
+                    label = { Text(LocalizationManager.getString("title")) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description (optional)") },
+                    label = { Text(LocalizationManager.getString("description_optional")) },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 3
                 )
@@ -189,12 +190,12 @@ fun AddTaskDialog(
                 },
                 enabled = title.isNotBlank()
             ) {
-                Text("Add")
+                Text(LocalizationManager.getString("add"))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(LocalizationManager.getString("cancel"))
             }
         }
     )

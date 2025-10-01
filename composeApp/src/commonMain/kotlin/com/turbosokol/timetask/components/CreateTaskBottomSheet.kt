@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.turbosokol.TimeTask.localization.LocalizationManager
 import com.turbosokol.TimeTask.screensStates.TaskItem
 import com.turbosokol.TimeTask.values.Colors
 import com.turbosokol.TimeTask.values.Dimensions
@@ -55,7 +56,7 @@ fun CreateTaskBottomSheet(
     ) {
         // Bottom sheet title
         Text(
-            text = "Create New Task",
+            text = LocalizationManager.getString("create_new_task"),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = Dimensions.paddingHalfMedium)
@@ -65,8 +66,8 @@ fun CreateTaskBottomSheet(
         OutlinedTextField(
             value = title,
             onValueChange = onTitleChange,
-            label = { Text("Task Title") },
-            placeholder = { Text("Enter task title") },
+            label = { Text(LocalizationManager.getString("task_title")) },
+            placeholder = { Text(LocalizationManager.getString("enter_task_title")) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -75,8 +76,8 @@ fun CreateTaskBottomSheet(
         OutlinedTextField(
             value = description,
             onValueChange = onDescriptionChange,
-            label = { Text("Task Description") },
-            placeholder = { Text("Enter task description") },
+            label = { Text(LocalizationManager.getString("task_description")) },
+            placeholder = { Text(LocalizationManager.getString("enter_task_description")) },
             modifier = Modifier.fillMaxWidth(),
             minLines = 3,
             maxLines = 5
@@ -84,7 +85,7 @@ fun CreateTaskBottomSheet(
 
         // Color picker
         Text(
-            text = "Choose Color",
+            text = LocalizationManager.getString("choose_color"),
             style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.padding(top = Dimensions.paddingHalfMedium)
         )
@@ -116,7 +117,7 @@ fun CreateTaskBottomSheet(
                     containerColor = MaterialTheme.colorScheme.secondary
                 )
             ) {
-                Text("Cancel")
+                Text(LocalizationManager.getString("cancel"))
             }
 
             // Create button
@@ -125,7 +126,7 @@ fun CreateTaskBottomSheet(
                 modifier = Modifier.weight(1f),
                 enabled = title.isNotBlank()
             ) {
-                Text("Create Task")
+                Text(LocalizationManager.getString("create_task"))
             }
         }
     }

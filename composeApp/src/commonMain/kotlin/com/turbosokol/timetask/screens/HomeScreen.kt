@@ -48,6 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.turbosokol.TimeTask.components.CreateTaskBottomSheet
 import com.turbosokol.TimeTask.components.EditTaskBottomSheet
+import com.turbosokol.TimeTask.localization.LocalizationManager
 import com.turbosokol.TimeTask.screensStates.HomeScreenAction
 import com.turbosokol.TimeTask.screensStates.TaskItem
 import com.turbosokol.TimeTask.values.Colors
@@ -217,7 +218,7 @@ fun HomeScreen(viewModel: ReduxViewModel) {
             // Background image
             Image(
                 painter = painterResource(Res.drawable.leaves_background),
-                contentDescription = "Background",
+                contentDescription = LocalizationManager.getString("background"),
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier.fillMaxSize(),
                 alpha = 0.4f
@@ -231,7 +232,7 @@ fun HomeScreen(viewModel: ReduxViewModel) {
             ) {
                 // Header
                 Text(
-                    text = "Task Manager",
+                    text = LocalizationManager.getString("task_manager"),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(
@@ -253,7 +254,7 @@ fun HomeScreen(viewModel: ReduxViewModel) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "Loading tasks...",
+                                text = LocalizationManager.getString("loading_tasks"),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
@@ -269,7 +270,7 @@ fun HomeScreen(viewModel: ReduxViewModel) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "Error: ${homeState.error}",
+                                text = "${LocalizationManager.getString("error_prefix").replace("%s", "")}${homeState.error ?: ""}",
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.error
                             )
@@ -277,7 +278,7 @@ fun HomeScreen(viewModel: ReduxViewModel) {
                                 onClick = { viewModel.execute(HomeScreenAction.LoadTasks) },
                                 modifier = Modifier.padding(top = 16.dp)
                             ) {
-                                Text("Retry")
+                                Text(LocalizationManager.getString("retry"))
                             }
                         }
                     }
@@ -314,20 +315,20 @@ fun HomeScreen(viewModel: ReduxViewModel) {
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Add task",
+                                    contentDescription = LocalizationManager.getString("add_task_content_desc"),
                                     modifier = Modifier.height(40.dp).width(40.dp),
                                     tint = MaterialTheme.colorScheme.onPrimary
                                 )
                             }
                             
                             Text(
-                                text = "No tasks yet",
+                                text = LocalizationManager.getString("no_tasks_yet"),
                                 style = MaterialTheme.typography.headlineSmall,
                                 color = MaterialTheme.colorScheme.onBackground,
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
-                                text = "Tap the + button to create your first task",
+                                text = LocalizationManager.getString("no_tasks_yet_message"),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                                 modifier = Modifier.padding(top = 8.dp)
@@ -382,7 +383,7 @@ fun HomeScreen(viewModel: ReduxViewModel) {
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Add Task"
+                    contentDescription = LocalizationManager.getString("add_task")
                 )
             }
         }
@@ -458,7 +459,7 @@ fun TaskItemCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
-                        contentDescription = "Reset time",
+                        contentDescription = LocalizationManager.getString("reset_time"),
                         tint = MaterialTheme.colorScheme.secondary
                     )
                 }
@@ -491,7 +492,7 @@ fun TaskItemCard(
                             getTaskColor(task.color).copy(alpha = 0.7f)
                     )
                     Text(
-                        text = "${(task.timeHours * 10).toInt() / 10.0} hours",
+                        text = "${LocalizationManager.getString("hours_display").replace("%.1f", "")}${(task.timeHours * 10).toInt() / 10.0}",
                         style = MaterialTheme.typography.bodySmall,
                         color = getTaskColor(task.color).copy(alpha = 0.6f)
                     )
@@ -508,11 +509,11 @@ fun TaskItemCard(
                 ) {
                     Icon(
                         imageVector = if (task.isActive) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = if (task.isActive) "Pause" else "Start",
+                        contentDescription = if (task.isActive) LocalizationManager.getString("pause") else LocalizationManager.getString("start"),
                         modifier = Modifier.padding(end = Dimensions.paddingMicro)
                     )
                     Text(
-                        text = if (task.isActive) "Pause" else "Start"
+                        text = if (task.isActive) LocalizationManager.getString("pause") else LocalizationManager.getString("start")
                     )
 
                 }

@@ -1,6 +1,7 @@
 import UIKit
 import SwiftUI
 import ComposeApp
+import Foundation
 
 /***
  *If this code runs it was created by Evgenii Sokol.

@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.turbosokol.TimeTask.localization.LocalizationManager
 import com.turbosokol.TimeTask.screensStates.TaskItem
 import com.turbosokol.TimeTask.values.Colors
 import com.turbosokol.TimeTask.values.Dimensions
@@ -63,7 +64,7 @@ fun EditTaskBottomSheet(
     ) {
         // Header
         Text(
-            text = "$title Edit Task",
+            text = LocalizationManager.getString("edit_task"),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = Dimensions.cornerMedium / 2)
@@ -73,8 +74,8 @@ fun EditTaskBottomSheet(
         OutlinedTextField(
             value = title,
             onValueChange = onTitleChange,
-            label = { Text("Task Title") },
-            placeholder = { Text("Enter task title") },
+            label = { Text(LocalizationManager.getString("task_title")) },
+            placeholder = { Text(LocalizationManager.getString("enter_task_title")) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -83,8 +84,8 @@ fun EditTaskBottomSheet(
         OutlinedTextField(
             value = description,
             onValueChange = onDescriptionChange,
-            label = { Text("Task Description") },
-            placeholder = { Text("Enter task description") },
+            label = { Text(LocalizationManager.getString("task_description")) },
+            placeholder = { Text(LocalizationManager.getString("enter_task_description")) },
             modifier = Modifier.fillMaxWidth(),
             minLines = 3,
             maxLines = 5
@@ -92,7 +93,7 @@ fun EditTaskBottomSheet(
 
         // Time input fields
         Text(
-            text = "Time Settings",
+            text = LocalizationManager.getString("time_settings"),
             style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.padding(top = Dimensions.paddingHalfMedium)
         )
@@ -104,8 +105,8 @@ fun EditTaskBottomSheet(
             OutlinedTextField(
                 value = timeSeconds,
                 onValueChange = onTimeSecondsChange,
-                label = { Text("Seconds") },
-                placeholder = { Text("0") },
+                label = { Text(LocalizationManager.getString("seconds")) },
+                placeholder = { Text(LocalizationManager.getString("placeholder_zero")) },
                 modifier = Modifier.weight(1f),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -115,8 +116,8 @@ fun EditTaskBottomSheet(
             OutlinedTextField(
                 value = timeHours,
                 onValueChange = onTimeHoursChange,
-                label = { Text("Hours") },
-                placeholder = { Text("0.0") },
+                label = { Text(LocalizationManager.getString("hours")) },
+                placeholder = { Text(LocalizationManager.getString("placeholder_zero_decimal")) },
                 modifier = Modifier.weight(1f),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
@@ -125,7 +126,7 @@ fun EditTaskBottomSheet(
 
         // Color picker
         Text(
-            text = "Choose Color",
+            text = LocalizationManager.getString("choose_color"),
             style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.padding(top = Dimensions.paddingHalfMedium)
         )
@@ -157,7 +158,7 @@ fun EditTaskBottomSheet(
                     containerColor = MaterialTheme.colorScheme.secondary
                 )
             ) {
-                Text("Cancel")
+                Text(LocalizationManager.getString("cancel"))
             }
 
             // Delete button
@@ -168,7 +169,7 @@ fun EditTaskBottomSheet(
                     containerColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("Delete")
+                Text(LocalizationManager.getString("delete"))
             }
 
             // Update button
@@ -185,7 +186,7 @@ fun EditTaskBottomSheet(
                 modifier = Modifier.weight(1f),
                 enabled = title.isNotBlank()
             ) {
-                Text("Update")
+                Text(LocalizationManager.getString("update"))
             }
         }
     }
