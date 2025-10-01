@@ -7,7 +7,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.sqldelight)
+    // SQLDelight plugin temporarily disabled for WASM compatibility
+     alias(libs.plugins.sqldelight)
 }
 
 kotlin {
@@ -68,6 +69,7 @@ kotlin {
             
             // SQLDelight for Android
             implementation(libs.sqldelight.driver.android)
+            implementation(libs.sqldelight.runtime)
         }
         
         iosMain.dependencies {
@@ -75,23 +77,27 @@ kotlin {
             implementation(libs.ktor.client.darwin)
             
             // SQLDelight for iOS
-            implementation(libs.sqldelight.driver.native)
+             implementation(libs.sqldelight.driver.native)
+             implementation(libs.sqldelight.runtime)
+             implementation(libs.sqldelight.coroutines.extensions)
         }
         
         jvmMain.dependencies {
             // JVM-specific Ktor client
             implementation(libs.ktor.client.java)
             
-            // SQLDelight for JVM  
-            implementation(libs.sqldelight.driver.jdbc)
+            // SQLDelight for JVM
+             implementation(libs.sqldelight.driver.jdbc)
+             implementation(libs.sqldelight.runtime)
+             implementation(libs.sqldelight.coroutines.extensions)
         }
         
         wasmJsMain.dependencies {
             // WASM/JS-specific Ktor client
             implementation(libs.ktor.client.js)
             
-            // SQLDelight for Web
-            implementation(libs.sqldelight.driver.js)
+            // No SQLDelight dependencies for WASM - using in-memory storage only
+            // SQLDelight doesn't support WASM yet
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -100,7 +106,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.turbosokol.kmmreduxtemplate.shared"
+    namespace = "com.turbosokol.TimeTask.shared"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -111,10 +117,12 @@ android {
     }
 }
 
+// SQLDelight configuration
 sqldelight {
     databases {
         create("TaskDatabase") {
-            packageName.set("com.turbosokol.kmmreduxtemplate.database")
+            packageName.set("com.turbosokol.TimeTask.database")
+            schemaOutputDirectory.set(file("src/commonMain/sqldelight"))
         }
     }
 }

@@ -1,4 +1,4 @@
-rootProject.name = "KMMREDUXTemplate"
+rootProject.name = "TimeTask"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
@@ -35,3 +35,4 @@ plugins {
 include(":composeApp")
 include(":server")
 include(":shared")
+include(":wasmApp")
