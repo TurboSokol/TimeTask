@@ -480,7 +480,7 @@ fun TaskItemCard(
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 text = formatTime(task.timeSeconds),
-                style = MaterialTheme.typography.displayMedium,
+                style = MaterialTheme.typography.displayLarge,
                 fontWeight = FontWeight.Bold,
                 color = if (task.isActive)
                     getTaskColor(task.color)
@@ -510,7 +510,7 @@ fun TaskItemCard(
                 // Start/Pause button
                 Button(
                     onClick = { viewModel.execute(HomeScreenAction.ToggleTaskTimer(task.id)) },
-                    modifier = Modifier.size(60.dp),
+                    modifier = Modifier.size(50.dp),
                     shape = RoundedCornerShape(20.dp),
                     colors = androidx.compose.material3.ButtonDefaults.buttonColors(
                         containerColor = getTaskColor(task.color),
@@ -523,7 +523,7 @@ fun TaskItemCard(
                         contentDescription = if (task.isActive) LocalizationManager.getString("pause") else LocalizationManager.getString(
                             "start"
                         ),
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier.size(42.dp)
                     )
                 }
             }
