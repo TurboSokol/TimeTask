@@ -79,7 +79,7 @@ class HomeScreenReducer : Reducer<HomeScreenState> {
                 oldState.copy(
                     isLoading = false,
                     error = action.message,
-                    firstLaunch = false  // Mark initial load as complete even if it failed
+                    firstLaunch = false
                 )
             }
 

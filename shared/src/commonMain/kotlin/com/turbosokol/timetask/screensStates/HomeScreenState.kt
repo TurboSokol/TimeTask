@@ -26,7 +26,7 @@ data class HomeScreenState(
     val tasks: List<TaskItem>,
     val isLoading: Boolean = false,
     val error: String? = null,
-    val firstLaunch: Boolean = true  // Track if we've completed the initial database load
+    val firstLaunch: Boolean = true
 ) : GeneralState {
     companion object {
         fun getInitState(): HomeScreenState = HomeScreenState(

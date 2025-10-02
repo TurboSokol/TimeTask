@@ -56,8 +56,8 @@ import com.turbosokol.TimeTask.screensStates.TaskItem
 import com.turbosokol.TimeTask.values.Colors
 import com.turbosokol.TimeTask.values.Dimensions
 import com.turbosokol.TimeTask.viewmodel.ReduxViewModel
-import org.koin.compose.koinInject
 import kotlinx.coroutines.delay
+import org.koin.compose.koinInject
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import timetask.composeapp.generated.resources.Res
@@ -88,7 +88,6 @@ fun HomeScreen(viewModel: ReduxViewModel) {
     // Safety timeout to ensure firstLaunch is always set to false
     LaunchedEffect(homeState.firstLaunch) {
         if (homeState.firstLaunch) {
-            delay(1000) // 1 seconds timeout
             val currentState = viewModel.store.observeState().value.getHomeScreenState()
             if (currentState.firstLaunch) {
                 // Force empty state if still in firstLaunch after timeout
@@ -96,7 +95,7 @@ fun HomeScreen(viewModel: ReduxViewModel) {
             }
         }
     }
-    
+
     // Remember active tasks for reactive updates
     val activeTasks = remember(homeState.tasks) {
         homeState.tasks.filter { it.isActive }
@@ -425,7 +424,7 @@ fun TaskItemCard(
             // Start from current time and increment
             var currentSeconds = task.timeSeconds
             while (task.isActive) {
-                delay(1000L) // Wait for 1 second
+                delay(1000L)
                 currentSeconds += 1
                 val newHours = currentSeconds / 3600.0
                 viewModel.execute(
