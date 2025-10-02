@@ -59,11 +59,12 @@ class LocalTaskRepositoryImpl(
             
             println("LocalTaskRepository: Task created with ID: ${newTask.id}")
             
-            // Save to local database
-            localDataSource.upsertTask(newTask.toDto())
+            // Save to local database and get the task with correct ID
+            val savedTaskDto = localDataSource.upsertTask(newTask.toDto())
+            val savedTask = savedTaskDto.toDomain()
             
-            println("LocalTaskRepository: Task saved to database")
-            newTask
+            println("LocalTaskRepository: Task saved to database with ID: ${savedTask.id}")
+            savedTask
         }
     }
 

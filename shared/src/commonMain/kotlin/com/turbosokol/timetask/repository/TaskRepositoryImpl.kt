@@ -66,13 +66,14 @@ class TaskRepositoryImpl(
                 color = color
             )
             
-            // Save locally first (optimistic UI)
-            localDataSource.upsertTask(newTask.toDto())
+            // Save locally first (optimistic UI) and get the task with correct ID
+            val savedTaskDto = localDataSource.upsertTask(newTask.toDto())
+            val savedTask = savedTaskDto.toDomain()
             
             // Note: Remote sync is disabled for now - tasks are stored locally only
             // When remote sync is implemented, we'll need to handle ID mapping between local and remote
             
-            newTask
+            savedTask
         }
     }
 

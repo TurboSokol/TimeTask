@@ -30,7 +30,7 @@ class InMemoryLocalTaskDataSource : LocalTaskDataSource {
         tasks[id]
     }
     
-    override suspend fun upsertTask(task: TaskDto) = mutex.withLock {
+    override suspend fun upsertTask(task: TaskDto): TaskDto = mutex.withLock {
         val taskToSave = if (task.id == 0) {
             // Generate new ID for in-memory storage
             task.copy(id = nextId++)
@@ -39,6 +39,7 @@ class InMemoryLocalTaskDataSource : LocalTaskDataSource {
         }
         tasks[taskToSave.id] = taskToSave
         updateFlow()
+        taskToSave
     }
     
     override suspend fun upsertTasks(tasks: List<TaskDto>) = mutex.withLock {

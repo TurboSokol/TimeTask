@@ -25,8 +25,9 @@ interface LocalTaskDataSource {
     
     /**
      * Inserts or updates a task
+     * Returns the task with the correct ID (generated for new tasks, original for updates)
      */
-    suspend fun upsertTask(task: TaskDto)
+    suspend fun upsertTask(task: TaskDto): TaskDto
     
     /**
      * Inserts or updates multiple tasks

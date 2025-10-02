@@ -19,6 +19,9 @@ insertTask:
 INSERT INTO Task (title, description, is_active, time_seconds, time_hours, color)
 VALUES (?, ?, ?, ?, ?, ?);
 
+getLastInsertedId:
+SELECT last_insert_rowid();
+
 updateTask:
 UPDATE Task 
 SET title = ?, description = ?, is_active = ?, time_seconds = ?, time_hours = ?, color = ?

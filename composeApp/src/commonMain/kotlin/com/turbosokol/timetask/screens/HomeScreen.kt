@@ -435,7 +435,7 @@ fun TaskItemCard(
         border = BorderStroke(
             width = 2.dp,
             color = getTaskColor(task.color).copy(
-                alpha = if (task.isActive) 0.8f else 0.3f
+                alpha = if (task.isActive) 1.0f else 0.3f
             )
         )
     ) {
@@ -497,9 +497,12 @@ fun TaskItemCard(
                             getTaskColor(task.color).copy(alpha = 0.7f)
                     )
                     Text(
-                        text = "${LocalizationManager.getString("hours_display").replace("%.1f", "")}${(task.timeHours * 10).toInt() / 10.0}",
+                        text = "${LocalizationManager.getString("hours_display").replace("%.1f", "")} ${(task.timeHours * 10).toInt() / 10.0}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = getTaskColor(task.color).copy(alpha = 0.6f)
+                        color = if (task.isActive)
+                            getTaskColor(task.color)
+                        else
+                            getTaskColor(task.color).copy(alpha = 0.7f)
                     )
                 }
 
