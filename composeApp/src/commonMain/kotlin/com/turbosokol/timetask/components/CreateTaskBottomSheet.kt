@@ -35,12 +35,10 @@ import com.turbosokol.TimeTask.values.Dimensions
 @Composable
 fun CreateTaskBottomSheet(
     title: String,
-    description: String,
     selectedColor: TaskItem.TaskColor,
     onTitleChange: (String) -> Unit,
-    onDescriptionChange: (String) -> Unit,
     onColorChange: (TaskItem.TaskColor) -> Unit,
-    onCreateTask: (String, String, TaskItem.TaskColor) -> Unit,
+    onCreateTask: (String, TaskItem.TaskColor) -> Unit,
     onCancel: () -> Unit
 ) {
     Column(
@@ -72,16 +70,6 @@ fun CreateTaskBottomSheet(
             singleLine = true
         )
 
-        // Task description input
-        OutlinedTextField(
-            value = description,
-            onValueChange = onDescriptionChange,
-            label = { Text(LocalizationManager.getString("task_description")) },
-            placeholder = { Text(LocalizationManager.getString("enter_task_description")) },
-            modifier = Modifier.fillMaxWidth(),
-            minLines = 3,
-            maxLines = 5
-        )
 
         // Color picker
         Text(
@@ -122,7 +110,7 @@ fun CreateTaskBottomSheet(
 
             // Create button
             Button(
-                onClick = { onCreateTask(title, description, selectedColor) },
+                onClick = { onCreateTask(title, selectedColor) },
                 modifier = Modifier.weight(1f),
                 enabled = title.isNotBlank()
             ) {

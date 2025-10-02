@@ -1,7 +1,6 @@
 CREATE TABLE Task (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
-    description TEXT NOT NULL,
     is_active INTEGER NOT NULL DEFAULT 0,
     time_seconds INTEGER NOT NULL DEFAULT 0,
     time_hours REAL NOT NULL DEFAULT 0.0,
@@ -16,15 +15,15 @@ selectById:
 SELECT * FROM Task WHERE id = ?;
 
 insertTask:
-INSERT INTO Task (title, description, is_active, time_seconds, time_hours, color)
-VALUES (?, ?, ?, ?, ?, ?);
+INSERT INTO Task (title, is_active, time_seconds, time_hours, color)
+VALUES (?, ?, ?, ?, ?);
 
 getLastInsertedId:
 SELECT last_insert_rowid();
 
 updateTask:
 UPDATE Task 
-SET title = ?, description = ?, is_active = ?, time_seconds = ?, time_hours = ?, color = ?
+SET title = ?, is_active = ?, time_seconds = ?, time_hours = ?, color = ?
 WHERE id = ?;
 
 deleteTaskById:

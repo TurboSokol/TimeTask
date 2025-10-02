@@ -13,7 +13,6 @@ import kotlinx.datetime.Instant
 data class Task(
     val id: Int,
     val title: String,
-    val description: String? = null,
     val isCompleted: Boolean = false,
     val createdAt: Instant,
     val updatedAt: Instant

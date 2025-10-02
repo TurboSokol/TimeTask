@@ -45,7 +45,6 @@ class HomeScreenMiddleware(
     private fun handleCreateTask(action: HomeScreenAction.CreateTask): Flow<Action> = flow {
         taskRepository.createTask(
             title = action.title,
-            description = action.description,
             color = action.color
         ).onSuccess { createdTask ->
             emit(HomeScreenAction.TaskCreated(createdTask))
@@ -59,7 +58,6 @@ class HomeScreenMiddleware(
         if (currentTask != null) {
             val updatedTask = currentTask.copy(
                 title = action.title,
-                description = action.description,
                 color = action.color,
                 timeSeconds = action.timeSeconds,
                 timeHours = action.timeHours

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -76,7 +77,7 @@ fun HomeScreen(viewModel: ReduxViewModel) {
     // Observe state from the store
     val appState by viewModel.store.observeState().collectAsState()
     val homeState = appState.getHomeScreenState()
-    
+
     // Get notification manager
     val notificationManager: NotificationManager = koinInject()
 
@@ -100,7 +101,7 @@ fun HomeScreen(viewModel: ReduxViewModel) {
     val activeTasks = remember(homeState.tasks) {
         homeState.tasks.filter { it.isActive }
     }
-    
+
     // Update notifications when active tasks change
     LaunchedEffect(activeTasks) {
         println("HomeScreen: LaunchedEffect triggered - updating notifications for ${activeTasks.size} active tasks")
@@ -113,7 +114,6 @@ fun HomeScreen(viewModel: ReduxViewModel) {
     val coroutineScope = rememberCoroutineScope()
     var isCreatingTask by remember { mutableStateOf(false) }
     var taskTitle by remember { mutableStateOf("") }
-    var taskDescription by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf(TaskItem.TaskColor.DEFAULT) }
     var taskTimeSeconds by remember { mutableStateOf("") }
     var taskTimeHours by remember { mutableStateOf("") }
@@ -127,70 +127,83 @@ fun HomeScreen(viewModel: ReduxViewModel) {
             ) {
                 if (isCreatingTask) {
                     CreateTaskBottomSheet(
-                    title = taskTitle,
-                    description = taskDescription,
-                    selectedColor = selectedColor,
-                    onTitleChange = { taskTitle = it },
-                    onDescriptionChange = { taskDescription = it },
-                    onColorChange = { selectedColor = it },
-                    onCreateTask = { title, description, color ->
-                        if (title.isNotBlank()) {
-                            viewModel.execute(
-                                HomeScreenAction.CreateTask(
-                                    title,
-                                    description,
-                                    color
+                        title = taskTitle,
+                        selectedColor = selectedColor,
+                        onTitleChange = { taskTitle = it },
+                        onColorChange = { selectedColor = it },
+                        onCreateTask = { title, color ->
+                            if (title.isNotBlank()) {
+                                viewModel.execute(
+                                    HomeScreenAction.CreateTask(
+                                        title,
+                                        color
+                                    )
                                 )
-                            )
+                                isCreatingTask = false
+                                taskTitle = ""
+                                selectedColor = TaskItem.TaskColor.DEFAULT
+                                coroutineScope.launch {
+                                    bottomSheetScaffoldState.bottomSheetState.partialExpand()
+                                }
+                            }
+                        },
+                        onCancel = {
                             isCreatingTask = false
                             taskTitle = ""
-                            taskDescription = ""
                             selectedColor = TaskItem.TaskColor.DEFAULT
                             coroutineScope.launch {
                                 bottomSheetScaffoldState.bottomSheetState.partialExpand()
                             }
                         }
-                    },
-                    onCancel = {
-                        isCreatingTask = false
-                        taskTitle = ""
-                        taskDescription = ""
-                        selectedColor = TaskItem.TaskColor.DEFAULT
-                        coroutineScope.launch {
-                            bottomSheetScaffoldState.bottomSheetState.partialExpand()
-                        }
-                    }
-                )
-            } else if (editingTask != null) {
-                EditTaskBottomSheet(
-                    task = editingTask!!,
-                    title = taskTitle,
-                    description = taskDescription,
-                    selectedColor = selectedColor,
-                    timeSeconds = taskTimeSeconds,
-                    timeHours = taskTimeHours,
-                    onTitleChange = { taskTitle = it },
-                    onDescriptionChange = { taskDescription = it },
-                    onColorChange = { selectedColor = it },
-                    onTimeSecondsChange = { taskTimeSeconds = it },
-                    onTimeHoursChange = { taskTimeHours = it },
-                    onUpdateTask = { title, description, color, timeSeconds, timeHours ->
-                        if (title.isNotBlank()) {
-                            val parsedSeconds = timeSeconds.toLongOrNull() ?: 0L
-                            val parsedHours = timeHours.toDoubleOrNull() ?: 0.0
-                            viewModel.execute(
-                                HomeScreenAction.EditTask(
-                                    editingTask!!.id,
-                                    title,
-                                    description,
-                                    color,
-                                    parsedSeconds,
-                                    parsedHours
+                    )
+                } else if (editingTask != null) {
+                    EditTaskBottomSheet(
+                        task = editingTask!!,
+                        title = taskTitle,
+                        selectedColor = selectedColor,
+                        timeSeconds = taskTimeSeconds,
+                        timeHours = taskTimeHours,
+                        onTitleChange = { taskTitle = it },
+                        onColorChange = { selectedColor = it },
+                        onTimeSecondsChange = { taskTimeSeconds = it },
+                        onTimeHoursChange = { taskTimeHours = it },
+                        onUpdateTask = { title, color, timeSeconds, timeHours ->
+                            if (title.isNotBlank()) {
+                                val parsedSeconds = timeSeconds.toLongOrNull() ?: 0L
+                                val parsedHours = timeHours.toDoubleOrNull() ?: 0.0
+                                viewModel.execute(
+                                    HomeScreenAction.EditTask(
+                                        editingTask!!.id,
+                                        title,
+                                        color,
+                                        parsedSeconds,
+                                        parsedHours
+                                    )
                                 )
-                            )
+                                editingTask = null
+                                taskTitle = ""
+                                selectedColor = TaskItem.TaskColor.DEFAULT
+                                taskTimeSeconds = ""
+                                taskTimeHours = ""
+                                coroutineScope.launch {
+                                    bottomSheetScaffoldState.bottomSheetState.partialExpand()
+                                }
+                            }
+                        },
+                        onDeleteTask = {
+                            viewModel.execute(HomeScreenAction.DeleteTask(editingTask!!.id))
                             editingTask = null
                             taskTitle = ""
-                            taskDescription = ""
+                            selectedColor = TaskItem.TaskColor.DEFAULT
+                            taskTimeSeconds = ""
+                            taskTimeHours = ""
+                            coroutineScope.launch {
+                                bottomSheetScaffoldState.bottomSheetState.partialExpand()
+                            }
+                        },
+                        onCancel = {
+                            editingTask = null
+                            taskTitle = ""
                             selectedColor = TaskItem.TaskColor.DEFAULT
                             taskTimeSeconds = ""
                             taskTimeHours = ""
@@ -198,31 +211,7 @@ fun HomeScreen(viewModel: ReduxViewModel) {
                                 bottomSheetScaffoldState.bottomSheetState.partialExpand()
                             }
                         }
-                    },
-                    onDeleteTask = {
-                        viewModel.execute(HomeScreenAction.DeleteTask(editingTask!!.id))
-                        editingTask = null
-                        taskTitle = ""
-                        taskDescription = ""
-                        selectedColor = TaskItem.TaskColor.DEFAULT
-                        taskTimeSeconds = ""
-                        taskTimeHours = ""
-                        coroutineScope.launch {
-                            bottomSheetScaffoldState.bottomSheetState.partialExpand()
-                        }
-                    },
-                    onCancel = {
-                        editingTask = null
-                        taskTitle = ""
-                        taskDescription = ""
-                        selectedColor = TaskItem.TaskColor.DEFAULT
-                        taskTimeSeconds = ""
-                        taskTimeHours = ""
-                        coroutineScope.launch {
-                            bottomSheetScaffoldState.bottomSheetState.partialExpand()
-                        }
-                    }
-                )
+                    )
                 } else {
                     // Empty state when no bottom sheet should be shown
                     Spacer(modifier = Modifier.height(1.dp))
@@ -291,7 +280,9 @@ fun HomeScreen(viewModel: ReduxViewModel) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "${LocalizationManager.getString("error_prefix").replace("%s", "")}${homeState.error ?: ""}",
+                                text = "${
+                                    LocalizationManager.getString("error_prefix").replace("%s", "")
+                                }${homeState.error ?: ""}",
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.error
                             )
@@ -320,7 +311,6 @@ fun HomeScreen(viewModel: ReduxViewModel) {
                                     isCreatingTask = true
                                     editingTask = null
                                     taskTitle = ""
-                                    taskDescription = ""
                                     selectedColor = TaskItem.TaskColor.DEFAULT
                                     taskTimeSeconds = ""
                                     taskTimeHours = ""
@@ -341,7 +331,7 @@ fun HomeScreen(viewModel: ReduxViewModel) {
                                     tint = MaterialTheme.colorScheme.onPrimary
                                 )
                             }
-                            
+
                             Text(
                                 text = LocalizationManager.getString("no_tasks_yet"),
                                 style = MaterialTheme.typography.headlineSmall,
@@ -372,7 +362,6 @@ fun HomeScreen(viewModel: ReduxViewModel) {
                                     isCreatingTask = false
                                     editingTask = task
                                     taskTitle = task.title
-                                    taskDescription = task.description
                                     selectedColor = task.color
                                     taskTimeSeconds = task.timeSeconds.toString()
                                     taskTimeHours = task.timeHours.toString()
@@ -392,7 +381,6 @@ fun HomeScreen(viewModel: ReduxViewModel) {
                     isCreatingTask = true
                     editingTask = null
                     taskTitle = ""
-                    taskDescription = ""
                     selectedColor = TaskItem.TaskColor.DEFAULT
                     coroutineScope.launch {
                         bottomSheetScaffoldState.bottomSheetState.expand()
@@ -468,10 +456,10 @@ fun TaskItemCard(
             ) {
                 Text(
                     text = task.title,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).padding(start = Dimensions.paddingHalfMedium)
                 )
 
                 // Reset button
@@ -486,60 +474,57 @@ fun TaskItemCard(
                 }
             }
 
+            Spacer(modifier = Modifier.height(Dimensions.paddingHalfMedium))
+
+            // Timer display
             Text(
-                text = task.description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = Dimensions.paddingMicro)
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                text = formatTime(task.timeSeconds),
+                style = MaterialTheme.typography.displayMedium,
+                fontWeight = FontWeight.Bold,
+                color = if (task.isActive)
+                    getTaskColor(task.color)
+                else
+                    getTaskColor(task.color).copy(alpha = 0.7f)
             )
 
-            Spacer(modifier = Modifier.height(Dimensions.paddingSmall))
+            Spacer(modifier = Modifier.height(Dimensions.paddingHalfMedium))
 
-            // Timer display and controls
+            // Timer hours display and controls
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Timer display
-                Column {
-                    Text(
-                        text = formatTime(task.timeSeconds),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = if (task.isActive)
-                            getTaskColor(task.color)
-                        else
-                            getTaskColor(task.color).copy(alpha = 0.7f)
-                    )
-                    Text(
-                        text = "${LocalizationManager.getString("hours_display").replace("%.1f", "")} ${(task.timeHours * 10).toInt() / 10.0}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (task.isActive)
-                            getTaskColor(task.color)
-                        else
-                            getTaskColor(task.color).copy(alpha = 0.7f)
-                    )
-                }
+                Text(
+                    text = "${
+                        LocalizationManager.getString("hours_display").replace("%.1f", "")
+                    } ${(task.timeHours * 10).toInt() / 10.0}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = if (task.isActive)
+                        getTaskColor(task.color)
+                    else
+                        getTaskColor(task.color).copy(alpha = 0.7f)
+                )
 
                 // Start/Pause button
                 Button(
                     onClick = { viewModel.execute(HomeScreenAction.ToggleTaskTimer(task.id)) },
-                    modifier = Modifier.width(120.dp),
+                    modifier = Modifier.size(60.dp),
+                    shape = RoundedCornerShape(20.dp),
                     colors = androidx.compose.material3.ButtonDefaults.buttonColors(
                         containerColor = getTaskColor(task.color),
                         contentColor = Colors.UI.White
-                    )
+                    ),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(3.dp)
                 ) {
                     Icon(
                         imageVector = if (task.isActive) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = if (task.isActive) LocalizationManager.getString("pause") else LocalizationManager.getString("start"),
-                        modifier = Modifier.padding(end = Dimensions.paddingMicro)
+                        contentDescription = if (task.isActive) LocalizationManager.getString("pause") else LocalizationManager.getString(
+                            "start"
+                        ),
+                        modifier = Modifier.size(48.dp)
                     )
-                    Text(
-                        text = if (task.isActive) LocalizationManager.getString("pause") else LocalizationManager.getString("start")
-                    )
-
                 }
             }
         }

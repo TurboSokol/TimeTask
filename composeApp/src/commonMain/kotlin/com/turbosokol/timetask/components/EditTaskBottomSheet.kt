@@ -38,16 +38,14 @@ import com.turbosokol.TimeTask.values.Dimensions
 fun EditTaskBottomSheet(
     task: TaskItem,
     title: String,
-    description: String,
     selectedColor: TaskItem.TaskColor,
     timeSeconds: String,
     timeHours: String,
     onTitleChange: (String) -> Unit,
-    onDescriptionChange: (String) -> Unit,
     onColorChange: (TaskItem.TaskColor) -> Unit,
     onTimeSecondsChange: (String) -> Unit,
     onTimeHoursChange: (String) -> Unit,
-    onUpdateTask: (String, String, TaskItem.TaskColor, String, String) -> Unit,
+    onUpdateTask: (String, TaskItem.TaskColor, String, String) -> Unit,
     onDeleteTask: () -> Unit,
     onCancel: () -> Unit
 ) {
@@ -80,16 +78,6 @@ fun EditTaskBottomSheet(
             singleLine = true
         )
 
-        // Description field
-        OutlinedTextField(
-            value = description,
-            onValueChange = onDescriptionChange,
-            label = { Text(LocalizationManager.getString("task_description")) },
-            placeholder = { Text(LocalizationManager.getString("enter_task_description")) },
-            modifier = Modifier.fillMaxWidth(),
-            minLines = 3,
-            maxLines = 5
-        )
 
         // Time input fields
         Text(
@@ -177,7 +165,6 @@ fun EditTaskBottomSheet(
                 onClick = {
                     onUpdateTask(
                         title,
-                        description,
                         selectedColor,
                         timeSeconds,
                         timeHours

@@ -22,7 +22,6 @@ interface TaskRepository {
   
     suspend fun createTask(
         title: String, 
-        description: String, 
         color: TaskItem.TaskColor
     ): Result<TaskItem>
     

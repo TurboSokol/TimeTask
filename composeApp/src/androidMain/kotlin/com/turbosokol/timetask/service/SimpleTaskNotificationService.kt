@@ -50,7 +50,6 @@ class SimpleTaskNotificationService : Service() {
                 TaskItemParcelable(
                     id = task.id,
                     title = task.title,
-                    description = task.description,
                     isActive = task.isActive,
                     timeSeconds = task.timeSeconds,
                     timeHours = task.timeHours,
@@ -76,7 +75,6 @@ class SimpleTaskNotificationService : Service() {
                 TaskItemParcelable(
                     id = task.id,
                     title = task.title,
-                    description = task.description,
                     isActive = task.isActive,
                     timeSeconds = task.timeSeconds,
                     timeHours = task.timeHours,
@@ -104,7 +102,6 @@ class SimpleTaskNotificationService : Service() {
                     TaskItem(
                         id = parcelable.id,
                         title = parcelable.title,
-                        description = parcelable.description,
                         isActive = parcelable.isActive,
                         timeSeconds = parcelable.timeSeconds,
                         timeHours = parcelable.timeHours,
@@ -127,7 +124,6 @@ class SimpleTaskNotificationService : Service() {
                     TaskItem(
                         id = parcelable.id,
                         title = parcelable.title,
-                        description = parcelable.description,
                         isActive = parcelable.isActive,
                         timeSeconds = parcelable.timeSeconds,
                         timeHours = parcelable.timeHours,

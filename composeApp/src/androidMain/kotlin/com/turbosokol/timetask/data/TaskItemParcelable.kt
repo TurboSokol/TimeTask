@@ -16,7 +16,6 @@ import com.turbosokol.TimeTask.screensStates.TaskItem
 data class TaskItemParcelable(
     val id: Int,
     val title: String,
-    val description: String,
     val isActive: Boolean,
     val timeSeconds: Long,
     val timeHours: Double,
@@ -25,7 +24,6 @@ data class TaskItemParcelable(
     
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
-        parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readByte() != 0.toByte(),
         parcel.readLong(),
@@ -36,7 +34,6 @@ data class TaskItemParcelable(
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeString(title)
-        parcel.writeString(description)
         parcel.writeByte(if (isActive) 1 else 0)
         parcel.writeLong(timeSeconds)
         parcel.writeDouble(timeHours)
@@ -61,7 +58,6 @@ data class TaskItemParcelable(
         return TaskItem(
             id = id,
             title = title,
-            description = description,
             isActive = isActive,
             timeSeconds = timeSeconds,
             timeHours = timeHours,
@@ -78,7 +74,6 @@ fun TaskItem.toParcelable(): TaskItemParcelable {
     return TaskItemParcelable(
         id = id,
         title = title,
-        description = description,
         isActive = isActive,
         timeSeconds = timeSeconds,
         timeHours = timeHours,

@@ -42,15 +42,13 @@ class LocalTaskRepositoryImpl(
 
     override suspend fun createTask(
         title: String,
-        description: String,
         color: TaskItem.TaskColor
     ): Result<TaskItem> = withContext(ioDispatcher) {
         runCatching {
-            println("LocalTaskRepository: Creating task - title: '$title', description: '$description'")
+            println("LocalTaskRepository: Creating task - title: '$title'")
             
             val newTask = TaskItem(
                 title = title,
-                description = description,
                 isActive = false,
                 timeSeconds = 0L,
                 timeHours = 0.0,

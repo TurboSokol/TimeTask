@@ -86,8 +86,8 @@ fun TaskListScreen() {
     if (showAddDialog) {
         AddTaskDialog(
             onDismiss = { showAddDialog = false },
-            onAddTask = { title, description ->
-                taskRepository.addTask(title, description)
+            onAddTask = { title ->
+                taskRepository.addTask(title)
                 showAddDialog = false
             }
         )
@@ -128,13 +128,6 @@ fun TaskItem(
                     style = MaterialTheme.typography.titleMedium,
                     color = if (isCompleted) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
                 )
-                task.description?.let { description ->
-                    Text(
-                        text = description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
             }
             
             TextButton(
@@ -151,10 +144,9 @@ fun TaskItem(
 @Composable
 fun AddTaskDialog(
     onDismiss: () -> Unit,
-    onAddTask: (String, String?) -> Unit
+    onAddTask: (String) -> Unit
 ) {
     var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
     
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -167,21 +159,13 @@ fun AddTaskDialog(
                     label = { Text(LocalizationManager.getString("title")) },
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text(LocalizationManager.getString("description_optional")) },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3
-                )
             }
         },
         confirmButton = {
             TextButton(
                 onClick = { 
                     if (title.isNotBlank()) {
-                        onAddTask(title, description.takeIf { it.isNotBlank() })
+                        onAddTask(title)
                     }
                 },
                 enabled = title.isNotBlank()

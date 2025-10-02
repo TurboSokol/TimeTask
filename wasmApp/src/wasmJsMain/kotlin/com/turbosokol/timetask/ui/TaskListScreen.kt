@@ -155,10 +155,9 @@ fun TaskItem(
 @Composable
 fun AddTaskDialog(
     onDismiss: () -> Unit,
-    onAddTask: (String, String?) -> Unit
+    onAddTask: (String) -> Unit
 ) {
     var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
     
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -171,21 +170,13 @@ fun AddTaskDialog(
                     label = { Text(LocalizationManager.getString("title")) },
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text(LocalizationManager.getString("description_optional")) },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3
-                )
             }
         },
         confirmButton = {
             TextButton(
                 onClick = { 
                     if (title.isNotBlank()) {
-                        onAddTask(title, description.takeIf { it.isNotBlank() })
+                        onAddTask(title)
                     }
                 },
                 enabled = title.isNotBlank()

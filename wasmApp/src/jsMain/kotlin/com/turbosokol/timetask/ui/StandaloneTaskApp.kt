@@ -149,10 +149,9 @@ fun SimpleTaskCard(
 @Composable
 fun SimpleAddTaskDialog(
     onDismiss: () -> Unit,
-    onAdd: (String, String) -> Unit
+    onAdd: (String) -> Unit
 ) {
     var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -165,18 +164,11 @@ fun SimpleAddTaskDialog(
                     label = { Text("Task Title") },
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text("Task Description") },
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
         },
         confirmButton = {
             TextButton(
-                onClick = { onAdd(title, description) },
+                onClick = { onAdd(title) },
                 enabled = title.isNotBlank()
             ) {
                 Text("Add")

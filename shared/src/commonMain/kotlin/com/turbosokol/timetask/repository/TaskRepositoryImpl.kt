@@ -53,13 +53,11 @@ class TaskRepositoryImpl(
 
     override suspend fun createTask(
         title: String,
-        description: String,
         color: TaskItem.TaskColor
     ): Result<TaskItem> = withContext(ioDispatcher) {
         runCatching {
             val newTask = TaskItem(
                 title = title,
-                description = description,
                 isActive = false,
                 timeSeconds = 0L,
                 timeHours = 0.0,
@@ -87,7 +85,6 @@ class TaskRepositoryImpl(
                 val updateRequest = UpdateTaskRequest(
                     id = task.id,
                     title = task.title,
-                    description = task.description,
                     isActive = task.isActive,
                     timeSeconds = task.timeSeconds,
                     timeHours = task.timeHours,

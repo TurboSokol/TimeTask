@@ -15,7 +15,6 @@ import kotlinx.serialization.Serializable
 data class TaskDto(
     val id: Int,
     val title: String,
-    val description: String,
     val isActive: Boolean,
     val timeSeconds: Long,
     val timeHours: Double,
@@ -29,7 +28,6 @@ data class TaskDto(
 fun TaskItem.toDto(): TaskDto = TaskDto(
     id = id, // Use the ID from TaskItem (0 for new tasks, actual ID for existing)
     title = title,
-    description = description,
     isActive = isActive,
     timeSeconds = timeSeconds,
     timeHours = timeHours,
@@ -42,7 +40,6 @@ fun TaskItem.toDto(): TaskDto = TaskDto(
 fun TaskDto.toDomain(): TaskItem = TaskItem(
     id = id,
     title = title,
-    description = description,
     isActive = isActive,
     timeSeconds = timeSeconds,
     timeHours = timeHours,
@@ -59,7 +56,6 @@ fun TaskDto.toDomain(): TaskItem = TaskItem(
 @Serializable
 data class CreateTaskRequest(
     val title: String,
-    val description: String,
     val color: String
 )
 
@@ -67,7 +63,6 @@ data class CreateTaskRequest(
 data class UpdateTaskRequest(
     val id: Int,
     val title: String,
-    val description: String,
     val isActive: Boolean,
     val timeSeconds: Long,
     val timeHours: Double,

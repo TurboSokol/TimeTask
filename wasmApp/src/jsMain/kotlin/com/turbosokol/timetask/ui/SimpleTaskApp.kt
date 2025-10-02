@@ -193,10 +193,9 @@ fun TaskCard(
 @Composable
 fun AddTaskDialog(
     onDismiss: () -> Unit,
-    onAdd: (String, String) -> Unit
+    onAdd: (String) -> Unit
 ) {
     var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -209,18 +208,11 @@ fun AddTaskDialog(
                     label = { Text(Strings.task_title) },
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text(Strings.task_description) },
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
         },
         confirmButton = {
             TextButton(
-                onClick = { onAdd(title, description) },
+                onClick = { onAdd(title) },
                 enabled = title.isNotBlank()
             ) {
                 Text(Strings.add)

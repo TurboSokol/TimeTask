@@ -32,7 +32,6 @@ class NetworkRemoteTaskDataSource : RemoteTaskDataSource {
         TaskDto(
             id = (1..1000).random(), // Server would assign actual ID
             title = request.title,
-            description = request.description,
             isActive = false,
             timeSeconds = 0L,
             timeHours = 0.0,
@@ -45,7 +44,6 @@ class NetworkRemoteTaskDataSource : RemoteTaskDataSource {
         TaskDto(
             id = request.id,
             title = request.title,
-            description = request.description,
             isActive = request.isActive,
             timeSeconds = request.timeSeconds,
             timeHours = request.timeHours,

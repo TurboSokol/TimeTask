@@ -37,12 +37,11 @@ class TaskRepository {
     /**
      * Add a new task
      */
-    suspend fun addTask(title: String, description: String? = null): Task = mutex.withLock {
+    suspend fun addTask(title: String): Task = mutex.withLock {
         val now = Clock.System.now()
         val task = Task(
             id = nextId++,
             title = title,
-            description = description,
             isCompleted = false,
             createdAt = now,
             updatedAt = now

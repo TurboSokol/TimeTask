@@ -11,7 +11,6 @@ import com.turbosokol.TimeTask.core.redux.GeneralState
 data class TaskItem(
     val id: Int = 0, // ID from database, 0 for new tasks
     val title: String,
-    val description: String,
     val isActive: Boolean,
     val timeSeconds: Long,
     val timeHours: Double,
@@ -42,8 +41,8 @@ sealed class HomeScreenAction : Action {
     data class ToggleTaskTimer(val taskId: Int) : HomeScreenAction()
     data class UpdateTaskTime(val taskId: Int, val timeSeconds: Long, val timeHours: Double) : HomeScreenAction()
     data class ResetTaskTime(val taskId: Int) : HomeScreenAction()
-    data class CreateTask(val title: String, val description: String, val color: TaskItem.TaskColor) : HomeScreenAction()
-    data class EditTask(val taskId: Int, val title: String, val description: String, val color: TaskItem.TaskColor, val timeSeconds: Long, val timeHours: Double) : HomeScreenAction()
+    data class CreateTask(val title: String, val color: TaskItem.TaskColor) : HomeScreenAction()
+    data class EditTask(val taskId: Int, val title: String, val color: TaskItem.TaskColor, val timeSeconds: Long, val timeHours: Double) : HomeScreenAction()
     data class DeleteTask(val taskId: Int) : HomeScreenAction()
     
     // Repository-driven actions
