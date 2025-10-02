@@ -50,11 +50,13 @@ import androidx.compose.ui.unit.dp
 import com.turbosokol.TimeTask.components.CreateTaskBottomSheet
 import com.turbosokol.TimeTask.components.EditTaskBottomSheet
 import com.turbosokol.TimeTask.localization.LocalizationManager
+import com.turbosokol.TimeTask.notification.NotificationManager
 import com.turbosokol.TimeTask.screensStates.HomeScreenAction
 import com.turbosokol.TimeTask.screensStates.TaskItem
 import com.turbosokol.TimeTask.values.Colors
 import com.turbosokol.TimeTask.values.Dimensions
 import com.turbosokol.TimeTask.viewmodel.ReduxViewModel
+import org.koin.compose.koinInject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -74,6 +76,9 @@ fun HomeScreen(viewModel: ReduxViewModel) {
     // Observe state from the store
     val appState by viewModel.store.observeState().collectAsState()
     val homeState = appState.getHomeScreenState()
+    
+    // Get notification manager
+    val notificationManager: NotificationManager = koinInject()
 
     // Load tasks from database when screen first appears
     LaunchedEffect(Unit) {
@@ -90,6 +95,15 @@ fun HomeScreen(viewModel: ReduxViewModel) {
                 viewModel.execute(HomeScreenAction.TasksLoaded(emptyList()))
             }
         }
+    }
+    
+    // Update notifications when tasks change or when any task state changes
+    LaunchedEffect(
+        homeState.tasks,
+        homeState.tasks.map { "${it.id}-${it.isActive}-${it.timeSeconds}" }
+    ) {
+        println("HomeScreen: LaunchedEffect triggered - updating notifications")
+        notificationManager.updateNotifications(homeState.tasks)
     }
 
     // Bottom sheet state management
@@ -543,9 +557,12 @@ private fun formatTime(seconds: Long): String {
 private fun getTaskColor(color: TaskItem.TaskColor): androidx.compose.ui.graphics.Color {
     return when (color) {
         TaskItem.TaskColor.DEFAULT -> Colors.TaskColors.Default
-        TaskItem.TaskColor.YELLOW -> Colors.TaskColors.Yellow
+        TaskItem.TaskColor.BROWN -> Colors.TaskColors.Brown
         TaskItem.TaskColor.PINK -> Colors.TaskColors.Pink
         TaskItem.TaskColor.BLUE -> Colors.TaskColors.Blue
-        TaskItem.TaskColor.MINT -> Colors.TaskColors.Mint
+        TaskItem.TaskColor.BLACK -> Colors.TaskColors.Black
+        TaskItem.TaskColor.ORANGE -> Colors.TaskColors.Orange
+        TaskItem.TaskColor.LIME -> Colors.TaskColors.Lime
+        TaskItem.TaskColor.TEAL -> Colors.TaskColors.Teal
     }
 }

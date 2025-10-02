@@ -18,7 +18,7 @@ data class TaskItem(
     val color: TaskColor
 ) {
     enum class TaskColor {
-        DEFAULT, YELLOW, PINK, BLUE, MINT
+        DEFAULT, BROWN, PINK, BLUE, BLACK, ORANGE, LIME, TEAL
     }
 }
 

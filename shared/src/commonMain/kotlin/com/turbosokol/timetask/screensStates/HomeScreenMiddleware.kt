@@ -104,12 +104,17 @@ class HomeScreenMiddleware(
         val currentTask = state.getHomeScreenState().tasks.find { it.id == action.taskId }
         if (currentTask != null) {
             val updatedTask = currentTask.copy(isActive = !currentTask.isActive)
+            println("HomeScreenMiddleware: ToggleTaskTimer - Task ${action.taskId} changing from ${currentTask.isActive} to ${updatedTask.isActive}")
             
             taskRepository.updateTask(updatedTask).onSuccess { 
+                println("HomeScreenMiddleware: Task updated successfully, emitting TaskUpdated")
                 emit(HomeScreenAction.TaskUpdated(updatedTask))
             }.onFailure { error ->
+                println("HomeScreenMiddleware: Failed to update task: ${error.message}")
                 emit(HomeScreenAction.TaskOperationFailed("Failed to toggle timer: ${error.message}"))
             }
+        } else {
+            println("HomeScreenMiddleware: Task ${action.taskId} not found")
         }
     }
     

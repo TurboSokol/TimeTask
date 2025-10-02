@@ -57,6 +57,7 @@ class HomeScreenReducer : Reducer<HomeScreenState> {
                 val updatedTasks = oldState.tasks.map { task ->
                     if (task.id == action.task.id) action.task else task
                 }
+                println("HomeScreenReducer: TaskUpdated - Task ${action.task.id} isActive: ${action.task.isActive}")
                 oldState.copy(tasks = updatedTasks, firstLaunch = false)
             }
             

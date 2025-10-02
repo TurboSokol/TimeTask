@@ -26,19 +26,21 @@ class InMemoryTaskDataSource : LocalTaskDataSource {
         tasks.find { it.id == id }
     }
     
-    override suspend fun upsertTask(task: TaskDto) {
-        mutex.withLock {
-            if (task.id > 0) {
-                // Update existing task
-                val index = tasks.indexOfFirst { it.id == task.id }
-                if (index >= 0) {
-                    tasks[index] = task
-                }
+    override suspend fun upsertTask(task: TaskDto): TaskDto = mutex.withLock {
+        if (task.id > 0) {
+            // Update existing task
+            val index = tasks.indexOfFirst { it.id == task.id }
+            if (index >= 0) {
+                tasks[index] = task
+                task
             } else {
-                // Insert new task
-                val newTask = task.copy(id = nextId++)
-                tasks.add(newTask)
+                task
             }
+        } else {
+            // Insert new task
+            val newTask = task.copy(id = nextId++)
+            tasks.add(newTask)
+            newTask
         }
     }
     

@@ -219,9 +219,12 @@ private fun ColorOption(
 private fun getTaskColor(color: TaskItem.TaskColor): Color {
     return when (color) {
         TaskItem.TaskColor.DEFAULT -> Colors.TaskColors.Default
-        TaskItem.TaskColor.YELLOW -> Colors.TaskColors.Yellow
+        TaskItem.TaskColor.BROWN -> Colors.TaskColors.Brown
         TaskItem.TaskColor.PINK -> Colors.TaskColors.Pink
         TaskItem.TaskColor.BLUE -> Colors.TaskColors.Blue
-        TaskItem.TaskColor.MINT -> Colors.TaskColors.Mint
+        TaskItem.TaskColor.BLACK -> Colors.TaskColors.Black
+        TaskItem.TaskColor.ORANGE -> Colors.TaskColors.Orange
+        TaskItem.TaskColor.LIME -> Colors.TaskColors.Lime
+        TaskItem.TaskColor.TEAL -> Colors.TaskColors.Teal
     }
 }

@@ -1,7 +1,7 @@
 package com.turbosokol.TimeTask
 
 import android.app.Application
-import com.turbosokol.TimeTask.di.initComposeAppKoin
+import com.turbosokol.TimeTask.di.initAndroidKoin
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.component.KoinComponent
 import kotlin.time.ExperimentalTime
@@ -26,7 +26,7 @@ class MyApp: Application(), KoinComponent {
 
     @OptIn(ExperimentalTime::class)
     private fun initKoin() {
-        initComposeAppKoin {
+        initAndroidKoin {
             androidContext(this@MyApp)
         }
     }
