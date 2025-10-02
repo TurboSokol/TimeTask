@@ -97,13 +97,16 @@ fun HomeScreen(viewModel: ReduxViewModel) {
         }
     }
     
-    // Update notifications when tasks change or when any task state changes
-    LaunchedEffect(
-        homeState.tasks,
-        homeState.tasks.map { "${it.id}-${it.isActive}-${it.timeSeconds}" }
-    ) {
-        println("HomeScreen: LaunchedEffect triggered - updating notifications")
-        notificationManager.updateNotifications(homeState.tasks)
+    // Remember active tasks for reactive updates
+    val activeTasks = remember(homeState.tasks) {
+        homeState.tasks.filter { it.isActive }
+    }
+    
+    // Update notifications when active tasks change
+    LaunchedEffect(activeTasks) {
+        println("HomeScreen: LaunchedEffect triggered - updating notifications for ${activeTasks.size} active tasks")
+        // Pass only active tasks to notification manager for efficiency
+        notificationManager.updateNotifications(activeTasks)
     }
 
     // Bottom sheet state management

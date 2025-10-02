@@ -15,6 +15,7 @@ class NoOpNotificationManager : NotificationManager {
     
     override fun updateNotifications(tasks: List<TaskItem>) {
         // No-op for non-Android platforms
+        // Note: tasks parameter contains only active tasks from HomeScreen
     }
     
     override fun stopNotifications() {

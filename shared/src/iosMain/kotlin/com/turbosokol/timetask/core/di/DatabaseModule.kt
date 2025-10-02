@@ -7,7 +7,7 @@ package com.turbosokol.TimeTask.core.di
 
 import com.turbosokol.TimeTask.database.DatabaseProvider
 import com.turbosokol.TimeTask.database.TaskDatabase
-import com.turbosokol.TimeTask.notification.NoOpNotificationManager
+import com.turbosokol.TimeTask.notification.IosNotificationManager
 import com.turbosokol.TimeTask.notification.NotificationManager
 import com.turbosokol.TimeTask.repository.datasource.LocalTaskDataSource
 import com.turbosokol.TimeTask.repository.datasource.SqlDelightLocalTaskDataSource
@@ -26,7 +26,7 @@ actual fun databaseModule() = module {
     }
     
     single<NotificationManager> { 
-        NoOpNotificationManager()
+        IosNotificationManager()
     }
 }
 

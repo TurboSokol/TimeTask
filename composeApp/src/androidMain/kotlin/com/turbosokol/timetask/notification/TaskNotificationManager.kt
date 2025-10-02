@@ -25,10 +25,11 @@ class TaskNotificationManager(private val context: Context) : NotificationManage
     
     /**
      * Update notifications based on current task state
+     * Note: tasks parameter now contains only active tasks from HomeScreen
      */
     override fun updateNotifications(tasks: List<TaskItem>) {
-        val activeTasks = tasks.filter { it.isActive }
-        println("TaskNotificationManager: Updating notifications. Total tasks: ${tasks.size}, Active tasks: ${activeTasks.size}")
+        val activeTasks = tasks // Already filtered in HomeScreen
+        println("TaskNotificationManager: Updating notifications for ${activeTasks.size} active tasks")
         
         // Check notification permissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
