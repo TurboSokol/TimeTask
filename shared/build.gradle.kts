@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
@@ -25,8 +24,7 @@ kotlin {
     
     jvm()
     
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
+    js(IR) {
         browser {
             val rootDirPath = project.rootDir.path
             val projectDirPath = project.projectDir.path
@@ -92,12 +90,14 @@ kotlin {
              implementation(libs.sqldelight.coroutines.extensions)
         }
         
-        wasmJsMain.dependencies {
-            // WASM/JS-specific Ktor client
+        jsMain.dependencies {
+            // JS-specific Ktor client
             implementation(libs.ktor.client.js)
             
-            // No SQLDelight dependencies for WASM - using in-memory storage only
-            // SQLDelight doesn't support WASM yet
+            // SQLDelight for JS
+            implementation(libs.sqldelight.driver.js)
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.coroutines.extensions)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

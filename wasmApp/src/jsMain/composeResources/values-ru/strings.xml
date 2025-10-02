@@ -1,0 +1,55 @@
+<resources>
+    <!-- App name -->
+    <string name="app_name">TimeTask</string>
+    
+    <!-- Main screen -->
+    <string name="task_manager">Менеджер задач</string>
+    <string name="timetask_wasm">TimeTask - WASM</string>
+    <string name="loading_tasks">Загрузка задач...</string>
+    <string name="error_prefix">Ошибка: %1$s</string>
+    <string name="retry">Повторить</string>
+    <string name="no_tasks_yet">Пока нет задач</string>
+    <string name="no_tasks_yet_message">Нажмите кнопку +, чтобы создать первую задачу</string>
+    <string name="no_tasks_yet_wasm">Пока нет задач. Добавьте одну, чтобы начать!</string>
+    
+    <!-- Task creation -->
+    <string name="create_new_task">Создать новую задачу</string>
+    <string name="add_new_task">Добавить новую задачу</string>
+    <string name="task_title">Название задачи</string>
+    <string name="task_description">Описание задачи</string>
+    <string name="enter_task_title">Введите название задачи</string>
+    <string name="enter_task_description">Введите описание задачи</string>
+    <string name="choose_color">Выберите цвет</string>
+    <string name="create_task">Создать задачу</string>
+    <string name="add">Добавить</string>
+    
+    <!-- Task editing -->
+    <string name="edit_task">Редактировать задачу</string>
+    <string name="time_settings">Настройки времени</string>
+    <string name="seconds">Секунды</string>
+    <string name="hours">Часы</string>
+    <string name="update">Обновить</string>
+    
+    <!-- Common actions -->
+    <string name="cancel">Отмена</string>
+    <string name="delete">Удалить</string>
+    <string name="start">Старт</string>
+    <string name="pause">Пауза</string>
+    <string name="reset_time">Сбросить время</string>
+    
+    <!-- Content descriptions -->
+    <string name="add_task">Добавить задачу</string>
+    <string name="background">Фон</string>
+    <string name="add_task_content_desc">Добавить задачу</string>
+    
+    <!-- Time display -->
+    <string name="hours_display">%1$.1f часов</string>
+    
+    <!-- Form fields -->
+    <string name="title">Название</string>
+    <string name="description_optional">Описание (необязательно)</string>
+    
+    <!-- Placeholders -->
+    <string name="placeholder_zero">0</string>
+    <string name="placeholder_zero_decimal">0.0</string>
+</resources>

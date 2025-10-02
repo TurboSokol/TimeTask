@@ -8,11 +8,10 @@ package com.turbosokol.TimeTask.localization
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
-import org.w3c.dom.Window
 import org.w3c.dom.window
 
 /**
- * WASM implementation of platform language detector
+ * JS implementation of platform language detector
  */
 actual class PlatformLanguageDetector {
     
@@ -32,12 +31,12 @@ actual class PlatformLanguageDetector {
     }
     
     actual fun cleanup() {
-        // No cleanup needed for WASM
+        // No cleanup needed for JS
     }
 }
 
 /**
- * Composable function to set up WASM language detection
+ * Composable function to set up JS language detection
  */
 @Composable
 actual fun rememberPlatformLanguageDetector(): PlatformLanguageDetector {

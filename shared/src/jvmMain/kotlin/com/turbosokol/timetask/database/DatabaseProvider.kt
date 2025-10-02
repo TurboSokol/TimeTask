@@ -69,43 +69,18 @@ object DatabaseProvider {
     
     private fun initializeDatabaseSchema(driver: SqlDriver) {
         try {
-            // Check if Task table exists
-            val tableExists = checkTableExists(driver, "Task")
-            
-            if (!tableExists) {
-                println("Task table does not exist. Creating schema...")
-                createDatabaseSchema(driver)
-                println("Database schema created successfully")
+            // Create database schema (SQLDelight handles existing tables gracefully)
+            createDatabaseSchema(driver)
+            println("Database schema initialized successfully")
+        } catch (e: Exception) {
+            // If table already exists, that's fine - just log and continue
+            if (e.message?.contains("already exists") == true) {
+                println("Database tables already exist, continuing...")
             } else {
-                println("Task table already exists. Verifying schema...")
-                verifyDatabaseSchema(driver)
+                println("Error initializing database schema: ${e.message}")
+                e.printStackTrace()
+                throw RuntimeException("Failed to initialize database", e)
             }
-            
-            // Verify database is working
-            verifyDatabaseConnection(driver)
-            
-        } catch (e: Exception) {
-            println("Error initializing database schema: ${e.message}")
-            e.printStackTrace()
-            throw RuntimeException("Failed to initialize database", e)
-        }
-    }
-    
-    private fun checkTableExists(driver: SqlDriver, tableName: String): Boolean {
-        return try {
-            val result: String? = driver.executeQuery(null,
-                "SELECT name FROM sqlite_master WHERE type='table' AND name=?", 
-                { cursor ->
-                    if (cursor.next()) {
-                        cursor.getString(0)
-                    } else {
-                        null
-                    }
-                }, 0, tableName)
-            result != null
-        } catch (e: Exception) {
-            println("Error checking table existence: ${e.message}")
-            false
         }
     }
     
@@ -115,44 +90,6 @@ object DatabaseProvider {
             println("Schema creation completed")
         } catch (e: Exception) {
             println("Error creating schema: ${e.message}")
-            throw e
-        }
-    }
-    
-    private fun verifyDatabaseSchema(driver: SqlDriver) {
-        try {
-            // Check if Task table has the expected columns
-            val result: String? = driver.executeQuery(null, 
-                "SELECT sql FROM sqlite_master WHERE type='table' AND name='Task'", 
-                { cursor ->
-                    if (cursor.next()) {
-                        cursor.getString(0)
-                    } else {
-                        null
-                    }
-                }, 0)
-            
-            if (result != null) {
-                println("Task table schema: $result")
-            } else {
-                throw RuntimeException("Task table schema not found")
-            }
-        } catch (e: Exception) {
-            println("Error verifying schema: ${e.message}")
-            throw e
-        }
-    }
-    
-    private fun verifyDatabaseConnection(driver: SqlDriver) {
-        try {
-            // Test database connection by counting existing tasks
-            val count: Long = driver.executeQuery(null, "SELECT COUNT(*) FROM Task", { cursor ->
-                cursor.next()
-                cursor.getLong(0)
-            }, 0)
-            println("Database connection verified. Existing tasks: $count")
-        } catch (e: Exception) {
-            println("Error verifying database connection: ${e.message}")
             throw e
         }
     }

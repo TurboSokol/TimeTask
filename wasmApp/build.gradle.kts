@@ -3,7 +3,6 @@
  *If it doesn't work, I don't know who was created it.
  ***/
 
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
@@ -14,9 +13,7 @@ plugins {
 }
 
 kotlin {
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        outputModuleName.set("wasmApp")
+    js(IR) {
         browser {
             val rootDirPath = project.rootDir.path
             val projectDirPath = project.projectDir.path
@@ -35,7 +32,10 @@ kotlin {
     }
     
     sourceSets {
-        wasmJsMain.dependencies {
+        jsMain.dependencies {
+            // Shared module
+            implementation(projects.shared)
+            
             //UI
             implementation(compose.runtime)
             implementation(compose.foundation)

@@ -5,8 +5,8 @@ package com.turbosokol.TimeTask
  *If it doesn’t work, I don’t know who was created it.
  ***/
 
-class WasmPlatform: Platform {
-    override val name: String = "Web with Kotlin/Wasm"
+class JsPlatform: Platform {
+    override val name: String = "Web with Kotlin/JS"
 }
 
-actual fun getPlatform(): Platform = WasmPlatform()
+actual fun getPlatform(): Platform = JsPlatform()
