@@ -47,7 +47,7 @@ TimeTask is a **modern, cross-platform task timer application** built with cutti
 ### 📱 **Main Task Manager Interface**
 <div align="center">
 
-![Task Manager Main Screen](screenshots/main-screen.png)
+![Task Manager Main Screen](screenshots/task-list.png)
 *Clean, modern interface with color-coded task timers and intuitive controls*
 
 </div>
@@ -55,7 +55,7 @@ TimeTask is a **modern, cross-platform task timer application** built with cutti
 ### ⏱️ **Active Task Timers**
 <div align="center">
 
-![Active Task Timers](screenshots/active-timers.png)
+![Active Task Timers](screenshots/notifications.png)
 *Real-time timer tracking with start/pause functionality and visual progress indicators*
 
 </div>
@@ -130,40 +130,6 @@ TimeTask/
 - **Xcode** 14+ (for iOS development)
 - **JDK** 11+ (for Desktop/Server)
 
-### ⚡ **Quick Start**
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/TimeTask.git
-   cd TimeTask
-   ```
-
-2. **Run on your preferred platform**
-   
-   **🤖 Android:**
-   ```bash
-   ./gradlew :composeApp:installDebug
-   ```
-   
-   **🍎 iOS:**
-   ```bash
-   ./gradlew :composeApp:iosSimulatorArm64Test
-   ```
-   
-   **🌐 Web (WASM):**
-   ```bash
-   ./gradlew :wasmApp:wasmJsBrowserDevelopmentRun
-   ```
-   
-   **🖥️ Desktop:**
-   ```bash
-   ./gradlew :composeApp:run
-   ```
-
-3. **🎉 Start tracking your tasks!**
-
----
-
 ## 📱 **Platform Support**
 
 | Platform | Status | Features |
@@ -203,30 +169,6 @@ TimeTask/
 
 ---
 
-## 🛠️ **Development**
-
-### 🏃‍♂️ **Running Tests**
-```bash
-# Run all tests
-./gradlew test
-
-# Run specific platform tests
-./gradlew :shared:testDebugUnitTest
-./gradlew :composeApp:testDebugUnitTest
-```
-
-### 🔧 **Building for Production**
-```bash
-# Android APK
-./gradlew :composeApp:assembleRelease
-
-# iOS Archive
-./gradlew :composeApp:iosArm64Test
-
-# Web Bundle
-./gradlew :wasmApp:wasmJsBrowserDistribution
-```
-
 ### 📊 **Code Quality**
 - **Kotlin coding standards** enforced
 - **Material Design 3** guidelines followed
@@ -255,24 +197,6 @@ We welcome contributions! Here's how you can help:
 ## 📄 **License**
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 **Acknowledgments**
-
-- **JetBrains** for Kotlin Multiplatform and Compose
-- **Android Team** for Material Design 3
-- **SQLDelight** team for excellent database support
-- **Koin** team for lightweight dependency injection
-
----
-
-## 📞 **Support & Contact**
-
-- **📧 Email**: [your-email@example.com](mailto:your-email@example.com)
-- **🐦 Twitter**: [@yourusername](https://twitter.com/yourusername)
-- **💼 LinkedIn**: [Your Profile](https://linkedin.com/in/yourprofile)
-- **🌐 Website**: [yourwebsite.com](https://yourwebsite.com)
 
 ---
 
