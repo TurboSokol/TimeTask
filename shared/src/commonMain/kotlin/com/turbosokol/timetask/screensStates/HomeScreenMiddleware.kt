@@ -38,6 +38,7 @@ class HomeScreenMiddleware(
             is HomeScreenAction.LoadTasks -> handleLoadTasks()
             is HomeScreenAction.SyncTasks -> handleSyncTasks()
             is HomeScreenAction.SaveAppState -> handleSaveAppState(state)
+            is HomeScreenAction.BackgroundTimerUpdate -> handleBackgroundTimerUpdate(action, state)
             else -> emptyFlow()
         }
     }
@@ -159,5 +160,11 @@ class HomeScreenMiddleware(
         } catch (e: Exception) {
             emit(HomeScreenAction.TaskOperationFailed("Failed to save app state: ${e.message}"))
         }
+    }
+    
+    private fun handleBackgroundTimerUpdate(action: HomeScreenAction.BackgroundTimerUpdate, @Suppress("UNUSED_PARAMETER") state: AppState): Flow<Action> = flow {
+        // Background timer updates are handled directly in the reducer for immediate UI updates
+        // This method exists for consistency but doesn't need to do anything
+        // The reducer already handles BackgroundTimerUpdate actions
     }
 }

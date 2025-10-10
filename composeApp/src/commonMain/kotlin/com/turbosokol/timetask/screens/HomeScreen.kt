@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -57,10 +57,9 @@ import com.turbosokol.TimeTask.screensStates.TaskItem
 import com.turbosokol.TimeTask.values.Colors
 import com.turbosokol.TimeTask.values.Dimensions
 import com.turbosokol.TimeTask.viewmodel.ReduxViewModel
-import kotlinx.coroutines.delay
-import org.koin.compose.koinInject
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.koinInject
 import timetask.composeapp.generated.resources.Res
 import timetask.composeapp.generated.resources.leaves_background
 
@@ -406,25 +405,8 @@ fun TaskItemCard(
     viewModel: ReduxViewModel,
     onTaskClick: (TaskItem) -> Unit
 ) {
-    // Timer logic using LaunchedEffect with task.id as key to avoid recreation on state changes
-    LaunchedEffect(key1 = task.id, key2 = task.isActive) {
-        if (task.isActive) {
-            // Start from current time and increment
-            var currentSeconds = task.timeSeconds
-            while (task.isActive) {
-                delay(1000L)
-                currentSeconds += 1
-                val newHours = currentSeconds / 3600.0
-                viewModel.execute(
-                    HomeScreenAction.UpdateTaskTime(
-                        task.id,
-                        currentSeconds,
-                        newHours
-                    )
-                )
-            }
-        }
-    }
+    // Timer logic removed - now handled by background notification service
+    // The service updates the Redux store, which triggers UI updates
 
     Card(
         modifier = Modifier

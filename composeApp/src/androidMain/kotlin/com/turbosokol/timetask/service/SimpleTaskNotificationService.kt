@@ -12,7 +12,6 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
@@ -276,6 +275,14 @@ class SimpleTaskNotificationService : Service() {
                 
                 updatedTasks.forEach { task ->
                     activeTasks[task.id] = task
+                    // Update Redux store with new timer values
+                    ReduxServiceBridge.getInstance().dispatchBackgroundTimerUpdate(
+                        task.id, 
+                        task.timeSeconds, 
+                        task.timeHours
+                    )
+                    // Also persist to database to prevent reset on app restart
+                    ReduxServiceBridge.getInstance().persistTaskUpdate(task)
                 }
                 
                 withContext(Dispatchers.Main) {

@@ -24,6 +24,21 @@ class HomeScreenReducer : Reducer<HomeScreenState> {
                 oldState
             }
             
+            // Background timer updates - handled directly in reducer for immediate UI updates
+            is HomeScreenAction.BackgroundTimerUpdate -> {
+                val updatedTasks = oldState.tasks.map { task ->
+                    if (task.id == action.taskId) {
+                        task.copy(
+                            timeSeconds = action.timeSeconds,
+                            timeHours = action.timeHours
+                        )
+                    } else {
+                        task
+                    }
+                }
+                oldState.copy(tasks = updatedTasks)
+            }
+            
             // Repository-driven actions
             is HomeScreenAction.LoadTasks -> {
                 oldState.copy(isLoading = true, error = null)
