@@ -20,6 +20,7 @@ import com.turbosokol.TimeTask.MainActivity
 import com.turbosokol.TimeTask.data.TaskItemParcelable
 import com.turbosokol.TimeTask.screensStates.TaskItem
 import com.turbosokol.TimeTask.values.Colors
+import com.turbosokol.TimeTask.alarm.TaskTimerAlarmManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -182,6 +183,7 @@ class SimpleTaskNotificationService : Service() {
             println("SimpleTaskNotificationService: Started foreground service with notifications")
         } else {
             println("SimpleTaskNotificationService: No active tasks, stopping service")
+            TaskTimerAlarmManager.stopTimerAlarm(this)
             stopSelf()
         }
     }
@@ -216,6 +218,7 @@ class SimpleTaskNotificationService : Service() {
         } else {
             println("SimpleTaskNotificationService: No active tasks remaining, stopping service")
             updateJob?.cancel()
+            TaskTimerAlarmManager.stopTimerAlarm(this)
             stopSelf()
         }
     }
@@ -262,22 +265,23 @@ class SimpleTaskNotificationService : Service() {
     }
     
     private fun startTimerUpdates() {
+        // Cancel any existing coroutine-based timer
         updateJob?.cancel()
+        
+        // Start AlarmManager-based timer for background processing
+        val activeTaskIds = activeTasks.keys.toList()
+        if (activeTaskIds.isNotEmpty()) {
+            println("SimpleTaskNotificationService: Starting AlarmManager timer for ${activeTaskIds.size} tasks")
+            TaskTimerAlarmManager.startTimerAlarm(this, activeTaskIds)
+        }
+        
+        // Keep a lightweight coroutine for immediate UI updates while app is active
         updateJob = serviceScope.launch {
             while (activeTasks.isNotEmpty()) {
                 delay(1000L)
                 
-                val updatedTasks = activeTasks.values.map { task ->
-                    task.copy(
-                        timeSeconds = task.timeSeconds + 1,
-                        timeHours = (task.timeSeconds + 1) / 3600.0
-                    )
-                }
-                
-                updatedTasks.forEach { task ->
-                    activeTasks[task.id] = task
-                }
-                
+                // Only update notifications, don't modify timer state
+                // Timer state is now managed by AlarmManager
                 withContext(Dispatchers.Main) {
                     createTaskNotifications()
                 }
@@ -288,6 +292,10 @@ class SimpleTaskNotificationService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         updateJob?.cancel()
+        
+        // Stop AlarmManager timer work
+        TaskTimerAlarmManager.stopTimerAlarm(this)
+        
         // Cancel all task notifications
         activeTasks.keys.forEach { taskId ->
             notificationManager.cancel(NOTIFICATION_ID_BASE + taskId)

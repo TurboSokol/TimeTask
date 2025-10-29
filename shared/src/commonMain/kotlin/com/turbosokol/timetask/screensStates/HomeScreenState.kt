@@ -38,9 +38,13 @@ data class HomeScreenState(
 }
 
 sealed class HomeScreenAction : Action {
-    data class ToggleTaskTimer(val taskId: Int) : HomeScreenAction()
+    // Timer actions
+    data class StartTaskTimer(val taskId: Int) : HomeScreenAction()
+    data class PauseTaskTimer(val taskId: Int) : HomeScreenAction()
     data class UpdateTaskTime(val taskId: Int, val timeSeconds: Long, val timeHours: Double) : HomeScreenAction()
     data class ResetTaskTime(val taskId: Int) : HomeScreenAction()
+    
+    // Task management actions
     data class CreateTask(val title: String, val color: TaskItem.TaskColor) : HomeScreenAction()
     data class EditTask(val taskId: Int, val title: String, val color: TaskItem.TaskColor, val timeSeconds: Long, val timeHours: Double) : HomeScreenAction()
     data class DeleteTask(val taskId: Int) : HomeScreenAction()

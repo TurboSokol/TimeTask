@@ -108,6 +108,34 @@ fun HomeScreen(viewModel: ReduxViewModel) {
         // Pass only active tasks to notification manager for efficiency
         notificationManager.updateNotifications(activeTasks)
     }
+    
+    // Real-time UI timer updates for active tasks
+    LaunchedEffect(homeState.tasks) {
+        val currentActiveTasks = homeState.tasks.filter { it.isActive }
+        if (currentActiveTasks.isNotEmpty()) {
+            while (true) {
+                delay(1000L) // Update every second
+                
+                // Get latest state snapshot
+                val latestState = viewModel.store.observeState().value.getHomeScreenState()
+                val latestActiveTasks = latestState.tasks.filter { it.isActive }
+                
+                if (latestActiveTasks.isEmpty()) {
+                    // No active tasks, exit the loop
+                    break
+                }
+                
+                // Update timer values in Redux state for all active tasks
+                latestActiveTasks.forEach { task ->
+                    viewModel.execute(HomeScreenAction.UpdateTaskTime(
+                        taskId = task.id,
+                        timeSeconds = task.timeSeconds + 1L,
+                        timeHours = (task.timeSeconds + 1L) / 3600.0
+                    ))
+                }
+            }
+        }
+    }
 
     // Bottom sheet state management
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
@@ -406,25 +434,9 @@ fun TaskItemCard(
     viewModel: ReduxViewModel,
     onTaskClick: (TaskItem) -> Unit
 ) {
-    // Timer logic using LaunchedEffect with task.id as key to avoid recreation on state changes
-    LaunchedEffect(key1 = task.id, key2 = task.isActive) {
-        if (task.isActive) {
-            // Start from current time and increment
-            var currentSeconds = task.timeSeconds
-            while (task.isActive) {
-                delay(1000L)
-                currentSeconds += 1
-                val newHours = currentSeconds / 3600.0
-                viewModel.execute(
-                    HomeScreenAction.UpdateTaskTime(
-                        task.id,
-                        currentSeconds,
-                        newHours
-                    )
-                )
-            }
-        }
-    }
+    // Timer logic removed - now handled by AlarmManager for background processing
+    // AlarmManager ensures timer continues when app goes to background or phone is locked
+    // UI updates are handled by the notification service and state updates from database
 
     Card(
         modifier = Modifier
@@ -509,7 +521,11 @@ fun TaskItemCard(
 
                 // Start/Pause button
                 Button(
-                    onClick = { viewModel.execute(HomeScreenAction.ToggleTaskTimer(task.id)) },
+                    onClick = { 
+                        viewModel.execute(
+                                if(task.isActive) HomeScreenAction.PauseTaskTimer(task.id) else HomeScreenAction.StartTaskTimer(task.id)
+                            )
+                    },
                     modifier = Modifier.size(50.dp),
                     shape = RoundedCornerShape(20.dp),
                     colors = androidx.compose.material3.ButtonDefaults.buttonColors(
