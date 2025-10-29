@@ -46,7 +46,14 @@ object DatabaseProvider {
     
     private fun createAndInitializeDriver(context: Context): SqlDriver {
         Log.d(TAG, "Creating Android SQLite driver...")
-        
+
+//        // Clear any existing database to avoid schema conflicts
+//        val databaseFile = context.getDatabasePath("task_database.db")
+//        if (databaseFile.exists()) {
+//            Log.d(TAG, "Clearing existing database to avoid schema conflicts...")
+//            databaseFile.delete()
+//        }
+
         // AndroidSqliteDriver automatically handles schema creation and persistence
         val driver: SqlDriver = AndroidSqliteDriver(TaskDatabase.Schema, context, "task_database.db")
         
