@@ -8,11 +8,6 @@ package com.turbosokol.TimeTask.alarm
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.turbosokol.TimeTask.screensStates.TaskItem
-import com.turbosokol.TimeTask.repository.TaskRepository
-import com.turbosokol.TimeTask.repository.LocalTaskRepositoryImpl
-import com.turbosokol.TimeTask.repository.datasource.SqlDelightLocalTaskDataSource
-import com.turbosokol.TimeTask.database.DatabaseProvider
 import com.turbosokol.TimeTask.service.TimerUpdateService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

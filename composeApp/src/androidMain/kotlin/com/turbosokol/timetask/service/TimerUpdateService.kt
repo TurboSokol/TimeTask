@@ -6,21 +6,19 @@
 package com.turbosokol.TimeTask.service
 
 import android.content.Context
-import com.turbosokol.TimeTask.screensStates.TaskItem
-import com.turbosokol.TimeTask.repository.TaskRepository
-import com.turbosokol.TimeTask.repository.LocalTaskRepositoryImpl
-import com.turbosokol.TimeTask.repository.datasource.SqlDelightLocalTaskDataSource
-import com.turbosokol.TimeTask.database.DatabaseProvider
-import com.turbosokol.TimeTask.screensStates.HomeScreenAction
-import com.turbosokol.TimeTask.core.redux.Store
-import com.turbosokol.TimeTask.core.redux.app.AppState
 import com.turbosokol.TimeTask.core.redux.Action
 import com.turbosokol.TimeTask.core.redux.Effect
+import com.turbosokol.TimeTask.core.redux.Store
+import com.turbosokol.TimeTask.core.redux.app.AppState
+import com.turbosokol.TimeTask.database.DatabaseProvider
+import com.turbosokol.TimeTask.repository.LocalTaskRepositoryImpl
+import com.turbosokol.TimeTask.repository.datasource.SqlDelightLocalTaskDataSource
+import com.turbosokol.TimeTask.screensStates.HomeScreenAction
+import com.turbosokol.TimeTask.screensStates.TaskItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * Service that handles timer updates from AlarmManager

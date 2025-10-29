@@ -12,15 +12,14 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.turbosokol.TimeTask.MainActivity
+import com.turbosokol.TimeTask.alarm.TaskTimerAlarmManager
 import com.turbosokol.TimeTask.data.TaskItemParcelable
 import com.turbosokol.TimeTask.screensStates.TaskItem
 import com.turbosokol.TimeTask.values.Colors
-import com.turbosokol.TimeTask.alarm.TaskTimerAlarmManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
