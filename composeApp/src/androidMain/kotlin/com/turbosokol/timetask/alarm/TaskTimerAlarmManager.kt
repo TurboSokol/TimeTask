@@ -19,7 +19,7 @@ import android.os.SystemClock
 object TaskTimerAlarmManager {
     
     private const val ALARM_REQUEST_CODE = 1001
-    private const val DEFAULT_UPDATE_INTERVAL = 60L * 1000L // 60 seconds in milliseconds
+    private const val DEFAULT_UPDATE_INTERVAL = 1000L // 1 second in milliseconds for real-time updates
     
     /**
      * Start timer alarm for active tasks

@@ -15,6 +15,7 @@ import com.turbosokol.TimeTask.repository.LocalTaskRepositoryImpl
 import com.turbosokol.TimeTask.repository.datasource.SqlDelightLocalTaskDataSource
 import com.turbosokol.TimeTask.screensStates.HomeScreenAction
 import com.turbosokol.TimeTask.screensStates.TaskItem
+import com.turbosokol.TimeTask.service.SimpleTaskNotificationService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -91,6 +92,15 @@ object TimerUpdateService {
                         }
                         println("TimerUpdateService: Dispatched ${updatedTasks.size} TaskUpdated actions to Redux")
                     } ?: println("TimerUpdateService: Redux store not initialized, skipping state update")
+                    
+                    // Update notifications with current task data
+                    try {
+                        SimpleTaskNotificationService.updateTasks(context, updatedTasks)
+                        println("TimerUpdateService: Updated notifications for ${updatedTasks.size} tasks")
+                    } catch (e: Exception) {
+                        println("TimerUpdateService: Failed to update notifications: ${e.message}")
+                        e.printStackTrace()
+                    }
                 } else {
                     println("TimerUpdateService: No tasks were updated")
                 }

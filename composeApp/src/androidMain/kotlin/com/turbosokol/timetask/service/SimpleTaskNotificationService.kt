@@ -274,18 +274,8 @@ class SimpleTaskNotificationService : Service() {
             TaskTimerAlarmManager.startTimerAlarm(this, activeTaskIds)
         }
         
-        // Keep a lightweight coroutine for immediate UI updates while app is active
-        updateJob = serviceScope.launch {
-            while (activeTasks.isNotEmpty()) {
-                delay(1000L)
-                
-                // Only update notifications, don't modify timer state
-                // Timer state is now managed by AlarmManager
-                withContext(Dispatchers.Main) {
-                    createTaskNotifications()
-                }
-            }
-        }
+        // Note: Notification updates are now handled by AlarmManager via TimerUpdateService
+        // This ensures notifications continue updating even when app is in background
     }
     
     override fun onDestroy() {
