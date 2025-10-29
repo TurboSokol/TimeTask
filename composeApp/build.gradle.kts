@@ -1,6 +1,5 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
@@ -33,9 +32,7 @@ kotlin {
     
     jvm()
     
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        outputModuleName.set("composeApp")
+    js(IR) {
         browser {
             val rootDirPath = project.rootDir.path
             val projectDirPath = project.projectDir.path
@@ -63,7 +60,6 @@ kotlin {
         }
         commonMain.dependencies {
             implementation(projects.shared)
-            
             //UI
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -74,12 +70,29 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             
-                         implementation(compose.materialIconsExtended)
+            implementation(compose.materialIconsExtended)
             
             //DI
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.composeViewModel)
+        }
+        
+        // Platform-specific dependencies
+        androidMain.dependencies {
+            implementation(projects.shared)
+        }
+        
+        iosMain.dependencies {
+            implementation(projects.shared)
+        }
+        
+        jvmMain.dependencies {
+            implementation(projects.shared)
+        }
+        
+        jsMain.dependencies {
+            implementation(projects.shared)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -92,11 +105,11 @@ kotlin {
 }
 
 android {
-    namespace = "com.example.kmmreduxtemplate"
+    namespace = "com.turbosokol.TimeTask"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.example.kmmreduxtemplate"
+        applicationId = "com.turbosokol.TimeTask"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
@@ -119,16 +132,18 @@ android {
 }
 
 dependencies {
+    implementation(project(":shared"))
+    implementation(project(":shared"))
     debugImplementation(compose.uiTooling)
 }
 
 compose.desktop {
     application {
-        mainClass = "com.example.kmmreduxtemplate.MainKt"
+        mainClass = "com.turbosokol.TimeTask.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.example.kmmreduxtemplate"
+            packageName = "com.turbosokol.TimeTask"
             packageVersion = "1.0.0"
         }
     }

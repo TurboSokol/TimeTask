@@ -1,0 +1,33 @@
+CREATE TABLE Task (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    is_active INTEGER NOT NULL DEFAULT 0,
+    time_seconds INTEGER NOT NULL DEFAULT 0,
+    time_hours REAL NOT NULL DEFAULT 0.0,
+    color TEXT NOT NULL DEFAULT 'DEFAULT'
+);
+
+-- Queries
+selectAll:
+SELECT * FROM Task ORDER BY id DESC;
+
+selectById:
+SELECT * FROM Task WHERE id = ?;
+
+insertTask:
+INSERT INTO Task (title, is_active, time_seconds, time_hours, color)
+VALUES (?, ?, ?, ?, ?);
+
+getLastInsertedId:
+SELECT last_insert_rowid();
+
+updateTask:
+UPDATE Task 
+SET title = ?, is_active = ?, time_seconds = ?, time_hours = ?, color = ?
+WHERE id = ?;
+
+deleteTaskById:
+DELETE FROM Task WHERE id = ?;
+
+deleteAllTasks:
+DELETE FROM Task;

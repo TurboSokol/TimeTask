@@ -1,3 +1,55 @@
 <resources>
-    <string name="app_name">KMMREDUXTemplate</string>
+    <!-- App name -->
+    <string name="app_name">TimeTask</string>
+    
+    <!-- Main screen -->
+    <string name="task_manager">Task Manager</string>
+    <string name="timetask_wasm">TimeTask - WASM</string>
+    <string name="loading_tasks">Loading tasks...</string>
+    <string name="error_prefix">Error: %1$s</string>
+    <string name="retry">Retry</string>
+    <string name="no_tasks_yet">No tasks yet</string>
+    <string name="no_tasks_yet_message">Tap the + button to create your first task</string>
+    <string name="no_tasks_yet_wasm">No tasks yet. Add one to get started!</string>
+    
+    <!-- Task creation -->
+    <string name="create_new_task">Create New Task</string>
+    <string name="add_new_task">Add New Task</string>
+    <string name="task_title">Task Title</string>
+    <string name="task_description">Task Description</string>
+    <string name="enter_task_title">Enter task title</string>
+    <string name="enter_task_description">Enter task description</string>
+    <string name="choose_color">Choose Color</string>
+    <string name="create_task">Create Task</string>
+    <string name="add">Add</string>
+    
+    <!-- Task editing -->
+    <string name="edit_task">Edit Task</string>
+    <string name="time_settings">Time Settings</string>
+    <string name="seconds">Seconds</string>
+    <string name="hours">Hours</string>
+    <string name="update">Update</string>
+    
+    <!-- Common actions -->
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="start">Start</string>
+    <string name="pause">Pause</string>
+    <string name="reset_time">Reset time</string>
+    
+    <!-- Content descriptions -->
+    <string name="add_task">Add Task</string>
+    <string name="background">Background</string>
+    <string name="add_task_content_desc">Add task</string>
+    
+    <!-- Time display -->
+    <string name="hours_display">%1$.1f hours</string>
+    
+    <!-- Form fields -->
+    <string name="title">Title</string>
+    <string name="description_optional">Description (optional)</string>
+    
+    <!-- Placeholders -->
+    <string name="placeholder_zero">0</string>
+    <string name="placeholder_zero_decimal">0.0</string>
 </resources>
