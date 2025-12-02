@@ -60,4 +60,7 @@ sealed class HomeScreenAction : Action {
     data class TaskDeleted(val taskId: Int) : HomeScreenAction()
     object AppStateSaved : HomeScreenAction()  // Confirmation of successful save
     data class TaskOperationFailed(val message: String) : HomeScreenAction()
+    
+    // Background service actions
+    data class BackgroundTimerUpdate(val taskId: Int, val timeSeconds: Long, val timeHours: Double) : HomeScreenAction()
 }

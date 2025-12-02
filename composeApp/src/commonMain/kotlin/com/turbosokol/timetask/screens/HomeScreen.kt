@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -60,6 +60,7 @@ import com.turbosokol.TimeTask.viewmodel.ReduxViewModel
 import org.koin.compose.koinInject
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.koinInject
 import timetask.composeapp.generated.resources.Res
 import timetask.composeapp.generated.resources.leaves_background
 
@@ -406,9 +407,8 @@ fun TaskItemCard(
     viewModel: ReduxViewModel,
     onTaskClick: (TaskItem) -> Unit
 ) {
-    // Timer logic removed - now handled by AlarmManager for background processing
-    // AlarmManager ensures timer continues when app goes to background or phone is locked
-    // UI updates are handled by the notification service and state updates from database
+    // Timer logic removed - now handled by background notification service
+    // The service updates the Redux store, which triggers UI updates
 
     Card(
         modifier = Modifier
