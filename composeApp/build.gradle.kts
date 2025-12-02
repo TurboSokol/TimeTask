@@ -72,6 +72,9 @@ kotlin {
             
             implementation(compose.materialIconsExtended)
             
+            // Date/Time
+            implementation(libs.kotlinx.datetime)
+            
             //DI
             implementation(libs.koin.core)
             implementation(libs.koin.compose)

@@ -16,6 +16,7 @@ data class TaskDto(
     val id: Int,
     val title: String,
     val isActive: Boolean,
+    val startTimeStamp: Long,
     val timeSeconds: Long,
     val timeHours: Double,
     val color: String
@@ -29,6 +30,7 @@ fun TaskItem.toDto(): TaskDto = TaskDto(
     id = id, // Use the ID from TaskItem (0 for new tasks, actual ID for existing)
     title = title,
     isActive = isActive,
+    startTimeStamp = startTimeStamp,
     timeSeconds = timeSeconds,
     timeHours = timeHours,
     color = color.name
@@ -41,6 +43,7 @@ fun TaskDto.toDomain(): TaskItem = TaskItem(
     id = id,
     title = title,
     isActive = isActive,
+    startTimeStamp = startTimeStamp,
     timeSeconds = timeSeconds,
     timeHours = timeHours,
     color = try {
@@ -64,6 +67,7 @@ data class UpdateTaskRequest(
     val id: Int,
     val title: String,
     val isActive: Boolean,
+    val startTimeStamp: Long,
     val timeSeconds: Long,
     val timeHours: Double,
     val color: String

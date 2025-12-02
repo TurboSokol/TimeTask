@@ -12,7 +12,8 @@ class HomeScreenReducer : Reducer<HomeScreenState> {
     override fun reduce(oldState: HomeScreenState, action: Action): HomeScreenState {
         return when (action) {
             // UI-only actions that don't require persistence are handled by middleware
-            is HomeScreenAction.ToggleTaskTimer,
+            is HomeScreenAction.StartTaskTimer,
+            is HomeScreenAction.PauseTaskTimer,
             is HomeScreenAction.UpdateTaskTime,
             is HomeScreenAction.ResetTaskTime,
             is HomeScreenAction.CreateTask,
