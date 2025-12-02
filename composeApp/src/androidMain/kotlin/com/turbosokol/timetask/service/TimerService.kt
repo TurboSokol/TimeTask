@@ -6,21 +6,21 @@
 package com.turbosokol.TimeTask.service
 
 import android.content.Context
-import com.turbosokol.TimeTask.alarm.TaskTimerAlarmManager
 import com.turbosokol.TimeTask.core.redux.Action
 import com.turbosokol.TimeTask.core.redux.Effect
 import com.turbosokol.TimeTask.core.redux.Middleware
 import com.turbosokol.TimeTask.core.redux.app.AppState
 import com.turbosokol.TimeTask.screensStates.HomeScreenAction
-import com.turbosokol.TimeTask.screensStates.TaskItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.datetime.Clock
 
 /**
- * Timer service that handles timer-related Redux actions
- * Manages AlarmManager for background timer processing
+ * Timer service middleware that handles timer-related Redux actions.
+ * Manages foreground service for timer processing.
+ * All timer updates are performed by SimpleTaskNotificationService.
  */
 class TimerService(
     private val context: Context
@@ -43,32 +43,49 @@ class TimerService(
     private fun handleStartTimer(action: HomeScreenAction.StartTaskTimer, state: AppState): Flow<Action> = flow {
         val currentTask = state.getHomeScreenState().tasks.find { it.id == action.taskId }
         if (currentTask != null && !currentTask.isActive) {
-            val updatedTask = currentTask.copy(isActive = true)
+            // Set startTimeStamp to current time in seconds
+            val startTimeStamp = Clock.System.now().epochSeconds
+            val updatedTask = currentTask.copy(
+                isActive = true,
+                startTimeStamp = startTimeStamp
+            )
             emit(HomeScreenAction.TaskUpdated(updatedTask))
             
-            // Start AlarmManager for this task
-            val activeTasks = state.getHomeScreenState().tasks.filter { it.isActive }
-            TaskTimerAlarmManager.startTimerAlarm(context, activeTasks.map { it.id })
+            // Get all active tasks (including the one we just started)
+            val activeTasks = state.getHomeScreenState().tasks
+                .map { if (it.id == action.taskId) updatedTask else it }
+                .filter { it.isActive }
             
-            println("TimerService: Started timer for task ${action.taskId}")
+            // Start/update foreground service with all active tasks
+            SimpleTaskNotificationService.startService(context, activeTasks)
+            
+            println("TimerService: Started timer for task ${action.taskId} - ${activeTasks.size} active tasks")
         }
     }
     
     private fun handlePauseTimer(action: HomeScreenAction.PauseTaskTimer, state: AppState): Flow<Action> = flow {
         val currentTask = state.getHomeScreenState().tasks.find { it.id == action.taskId }
         if (currentTask != null && currentTask.isActive) {
-            val updatedTask = currentTask.copy(isActive = false)
+            val updatedTask = currentTask.copy(
+                isActive = false,
+                startTimeStamp = 0L  // Reset start timestamp when pausing
+            )
             emit(HomeScreenAction.TaskUpdated(updatedTask))
             
-            // Update AlarmManager with remaining active tasks
-            val activeTasks = state.getHomeScreenState().tasks.filter { it.isActive && it.id != action.taskId }
+            // Get remaining active tasks
+            val activeTasks = state.getHomeScreenState().tasks
+                .map { if (it.id == action.taskId) updatedTask else it }
+                .filter { it.isActive }
+            
             if (activeTasks.isNotEmpty()) {
-                TaskTimerAlarmManager.startTimerAlarm(context, activeTasks.map { it.id })
+                // Update foreground service with remaining active tasks
+                SimpleTaskNotificationService.updateTasks(context, activeTasks)
             } else {
-                TaskTimerAlarmManager.stopTimerAlarm(context)
+                // No active tasks remaining, stop service
+                SimpleTaskNotificationService.stopService(context)
             }
             
-            println("TimerService: Paused timer for task ${action.taskId}")
+            println("TimerService: Paused timer for task ${action.taskId} - ${activeTasks.size} active tasks remaining")
         }
     }
     
@@ -91,19 +108,25 @@ class TimerService(
             val updatedTask = currentTask.copy(
                 timeSeconds = 0L,
                 timeHours = 0.0,
+                startTimeStamp = 0L,
                 isActive = false
             )
             emit(HomeScreenAction.TaskUpdated(updatedTask))
             
-            // Update AlarmManager with remaining active tasks
-            val activeTasks = state.getHomeScreenState().tasks.filter { it.isActive && it.id != action.taskId }
+            // Get remaining active tasks
+            val activeTasks = state.getHomeScreenState().tasks
+                .map { if (it.id == action.taskId) updatedTask else it }
+                .filter { it.isActive }
+            
             if (activeTasks.isNotEmpty()) {
-                TaskTimerAlarmManager.startTimerAlarm(context, activeTasks.map { it.id })
+                // Update foreground service with remaining active tasks
+                SimpleTaskNotificationService.updateTasks(context, activeTasks)
             } else {
-                TaskTimerAlarmManager.stopTimerAlarm(context)
+                // No active tasks remaining, stop service
+                SimpleTaskNotificationService.stopService(context)
             }
             
-            println("TimerService: Reset timer for task ${action.taskId}")
+            println("TimerService: Reset timer for task ${action.taskId} - ${activeTasks.size} active tasks remaining")
         }
     }
 }

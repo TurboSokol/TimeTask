@@ -12,12 +12,20 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.turbosokol.TimeTask.MainActivity
-import com.turbosokol.TimeTask.alarm.TaskTimerAlarmManager
+import com.turbosokol.TimeTask.core.redux.Action
+import com.turbosokol.TimeTask.core.redux.Effect
+import com.turbosokol.TimeTask.core.redux.Store
+import com.turbosokol.TimeTask.core.redux.app.AppState
 import com.turbosokol.TimeTask.data.TaskItemParcelable
+import com.turbosokol.TimeTask.database.DatabaseProvider
+import com.turbosokol.TimeTask.repository.LocalTaskRepositoryImpl
+import com.turbosokol.TimeTask.repository.datasource.SqlDelightLocalTaskDataSource
+import com.turbosokol.TimeTask.screensStates.HomeScreenAction
 import com.turbosokol.TimeTask.screensStates.TaskItem
 import com.turbosokol.TimeTask.values.Colors
 import kotlinx.coroutines.CoroutineScope
@@ -25,10 +33,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 
 /**
- * Simplified foreground service that shows persistent notifications for active tasks
+ * Foreground service that manages all timer operations for active tasks.
+ * Handles timer updates, notifications, database persistence, and Redux state updates.
+ * This is the single source of truth for timer processing.
+ * 
+ * Uses FOREGROUND_SERVICE_TYPE_SPECIAL_USE to support long-running timer sessions (6+ hours).
+ * This type is not subject to the 6-hour daily limit imposed on dataSync services in Android 15+.
+ * 
+ * For optimal stability across different device manufacturers:
+ * - Service runs with START_STICKY to restart after system kills
+ * - User should disable battery optimization for the app
+ * - WAKE_LOCK permission ensures timer continues when device sleeps
  */
 class SimpleTaskNotificationService : Service() {
     
@@ -36,13 +54,20 @@ class SimpleTaskNotificationService : Service() {
         private const val NOTIFICATION_ID_BASE = 1000
         private const val CHANNEL_ID = "task_timer_channel"
         private const val CHANNEL_NAME = "Task Timer Notifications"
-        private const val CHANNEL_DESCRIPTION = "Shows silent high-priority notifications for active task timers with task name, time, and hours"
+        private const val CHANNEL_DESCRIPTION = "Shows notifications for active task timers with real-time updates"
+        private const val TIMER_UPDATE_INTERVAL_MS = 1000L // Update every second
         
-        // Actions for notification
+        // Actions
         private const val ACTION_OPEN_APP = "open_app"
+        private const val ACTION_UPDATE_TASKS = "UPDATE_TASKS"
         
-        private var activeTasks = mutableMapOf<Int, TaskItem>()
-        private var updateJob: Job? = null
+        // Store reference for Redux updates
+        private var reduxStore: Store<AppState, Action, Effect>? = null
+        
+        fun initialize(store: Store<AppState, Action, Effect>) {
+            reduxStore = store
+            println("SimpleTaskNotificationService: Redux store initialized")
+        }
         
         fun startService(context: Context, tasks: List<TaskItem>) {
             val intent = Intent(context, SimpleTaskNotificationService::class.java)
@@ -51,6 +76,7 @@ class SimpleTaskNotificationService : Service() {
                     id = task.id,
                     title = task.title,
                     isActive = task.isActive,
+                    startTimeStamp = task.startTimeStamp,
                     timeSeconds = task.timeSeconds,
                     timeHours = task.timeHours,
                     color = task.color.name
@@ -70,12 +96,13 @@ class SimpleTaskNotificationService : Service() {
         
         fun updateTasks(context: Context, tasks: List<TaskItem>) {
             val intent = Intent(context, SimpleTaskNotificationService::class.java)
-            intent.action = "UPDATE_TASKS"
+            intent.action = ACTION_UPDATE_TASKS
             intent.putParcelableArrayListExtra("tasks", ArrayList(tasks.map { task ->
                 TaskItemParcelable(
                     id = task.id,
                     title = task.title,
                     isActive = task.isActive,
+                    startTimeStamp = task.startTimeStamp,
                     timeSeconds = task.timeSeconds,
                     timeHours = task.timeHours,
                     color = task.color.name
@@ -86,32 +113,33 @@ class SimpleTaskNotificationService : Service() {
     }
     
     private lateinit var notificationManager: NotificationManager
-    private val serviceScope = CoroutineScope(Dispatchers.Main)
+    private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
+    private var timerJob: Job? = null
+    
+    // Active tasks being tracked by this service
+    private val activeTasks = mutableMapOf<Int, TaskItem>()
+    
+    // Repository for database operations
+    private lateinit var taskRepository: LocalTaskRepositoryImpl
     
     override fun onCreate() {
         super.onCreate()
+        println("SimpleTaskNotificationService: onCreate")
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         createNotificationChannel()
+        
+        // Initialize repository
+        val database = DatabaseProvider.initializeDatabase(this)
+        val localDataSource = SqlDelightLocalTaskDataSource(database)
+        taskRepository = LocalTaskRepositoryImpl(localDataSource, Dispatchers.IO)
     }
     
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         println("SimpleTaskNotificationService: onStartCommand called with action: ${intent?.action}")
+        
         when (intent?.action) {
-            "UPDATE_TASKS" -> {
-                val tasks = intent.getParcelableArrayListExtra<TaskItemParcelable>("tasks")?.map { parcelable ->
-                    TaskItem(
-                        id = parcelable.id,
-                        title = parcelable.title,
-                        isActive = parcelable.isActive,
-                        timeSeconds = parcelable.timeSeconds,
-                        timeHours = parcelable.timeHours,
-                        color = try {
-                            TaskItem.TaskColor.valueOf(parcelable.color)
-                        } catch (e: IllegalArgumentException) {
-                            TaskItem.TaskColor.DEFAULT
-                        }
-                    )
-                } ?: emptyList()
+            ACTION_UPDATE_TASKS -> {
+                val tasks = parseTasksFromIntent(intent)
                 updateActiveTasks(tasks)
             }
             ACTION_OPEN_APP -> {
@@ -120,25 +148,30 @@ class SimpleTaskNotificationService : Service() {
                 startActivity(openAppIntent)
             }
             else -> {
-                val tasks = intent?.getParcelableArrayListExtra<TaskItemParcelable>("tasks")?.map { parcelable ->
-                    TaskItem(
-                        id = parcelable.id,
-                        title = parcelable.title,
-                        isActive = parcelable.isActive,
-                        timeSeconds = parcelable.timeSeconds,
-                        timeHours = parcelable.timeHours,
-                        color = try {
-                            TaskItem.TaskColor.valueOf(parcelable.color)
-                        } catch (e: IllegalArgumentException) {
-                            TaskItem.TaskColor.DEFAULT
-                        }
-                    )
-                } ?: emptyList()
-                startForegroundService(tasks)
+                val tasks = parseTasksFromIntent(intent)
+                startForegroundWithTasks(tasks)
             }
         }
         
         return START_STICKY
+    }
+    
+    private fun parseTasksFromIntent(intent: Intent?): List<TaskItem> {
+        return intent?.getParcelableArrayListExtra<TaskItemParcelable>("tasks")?.map { parcelable ->
+            TaskItem(
+                id = parcelable.id,
+                title = parcelable.title,
+                isActive = parcelable.isActive,
+                startTimeStamp = parcelable.startTimeStamp,
+                timeSeconds = parcelable.timeSeconds,
+                timeHours = parcelable.timeHours,
+                color = try {
+                    TaskItem.TaskColor.valueOf(parcelable.color)
+                } catch (e: IllegalArgumentException) {
+                    TaskItem.TaskColor.DEFAULT
+                }
+            )
+        } ?: emptyList()
     }
     
     override fun onBind(intent: Intent?): IBinder? = null
@@ -161,42 +194,53 @@ class SimpleTaskNotificationService : Service() {
         }
     }
     
-    private fun startForegroundService(tasks: List<TaskItem>) {
-        println("SimpleTaskNotificationService: startForegroundService called with ${tasks.size} tasks")
+    private fun startForegroundWithTasks(tasks: List<TaskItem>) {
+        println("SimpleTaskNotificationService: startForegroundWithTasks called with ${tasks.size} tasks")
+        
         activeTasks.clear()
-        // Note: tasks parameter now contains only active tasks from TaskNotificationManager
         tasks.forEach { task ->
             activeTasks[task.id] = task
         }
         
-        println("SimpleTaskNotificationService: Found ${activeTasks.size} active tasks")
+        println("SimpleTaskNotificationService: Processing ${activeTasks.size} active tasks")
+        
         if (activeTasks.isNotEmpty()) {
             // Start foreground service with the first task's notification
             val firstTask = activeTasks.values.first()
             val mainNotification = createTaskNotification(firstTask)
-            startForeground(NOTIFICATION_ID_BASE + firstTask.id, mainNotification)
+            
+            // Start foreground with proper type for Android 14+ (specialUse for long-running timer)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(
+                    NOTIFICATION_ID_BASE + firstTask.id,
+                    mainNotification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                )
+            } else {
+                startForeground(NOTIFICATION_ID_BASE + firstTask.id, mainNotification)
+            }
             
             // Create notifications for all active tasks
-            createTaskNotifications()
-            startTimerUpdates()
-            println("SimpleTaskNotificationService: Started foreground service with notifications")
+            updateAllNotifications()
+            
+            // Start timer loop
+            startTimerLoop()
+            
+            println("SimpleTaskNotificationService: Started foreground service with ${activeTasks.size} tasks")
         } else {
             println("SimpleTaskNotificationService: No active tasks, stopping service")
-            TaskTimerAlarmManager.stopTimerAlarm(this)
             stopSelf()
         }
     }
     
     private fun updateActiveTasks(tasks: List<TaskItem>) {
-        // Note: tasks parameter now contains only active tasks from TaskNotificationManager
-        val newActiveTasks = tasks
         val currentActiveIds = activeTasks.keys.toSet()
-        val newActiveIds = newActiveTasks.map { it.id }.toSet()
+        val newActiveIds = tasks.map { it.id }.toSet()
         
-        println("SimpleTaskNotificationService: updateActiveTasks - Current active: $currentActiveIds, New active: $newActiveIds")
+        println("SimpleTaskNotificationService: updateActiveTasks - Current: $currentActiveIds, New: $newActiveIds")
         
-        // Update existing tasks
-        newActiveTasks.forEach { task ->
+        // Update existing tasks with new data
+        tasks.forEach { task ->
             activeTasks[task.id] = task
         }
         
@@ -210,19 +254,20 @@ class SimpleTaskNotificationService : Service() {
         
         // Update notifications for all active tasks
         if (activeTasks.isNotEmpty()) {
-            createTaskNotifications()
-            if (updateJob?.isActive != true) {
-                startTimerUpdates()
+            updateAllNotifications()
+            
+            // Ensure timer is running
+            if (timerJob?.isActive != true) {
+                startTimerLoop()
             }
         } else {
             println("SimpleTaskNotificationService: No active tasks remaining, stopping service")
-            updateJob?.cancel()
-            TaskTimerAlarmManager.stopTimerAlarm(this)
+            stopTimerLoop()
             stopSelf()
         }
     }
     
-    private fun createTaskNotifications() {
+    private fun updateAllNotifications() {
         activeTasks.values.forEach { task ->
             val notification = createTaskNotification(task)
             notificationManager.notify(NOTIFICATION_ID_BASE + task.id, notification)
@@ -263,32 +308,90 @@ class SimpleTaskNotificationService : Service() {
             .build()
     }
     
-    private fun startTimerUpdates() {
-        // Cancel any existing coroutine-based timer
-        updateJob?.cancel()
+    /**
+     * Starts the main timer loop that updates all active tasks every second.
+     * This is the central timer processing mechanism for the foreground service.
+     */
+    private fun startTimerLoop() {
+        // Cancel any existing timer
+        timerJob?.cancel()
         
-        // Start AlarmManager-based timer for background processing
-        val activeTaskIds = activeTasks.keys.toList()
-        if (activeTaskIds.isNotEmpty()) {
-            println("SimpleTaskNotificationService: Starting AlarmManager timer for ${activeTaskIds.size} tasks")
-            TaskTimerAlarmManager.startTimerAlarm(this, activeTaskIds)
+        println("SimpleTaskNotificationService: Starting timer loop for ${activeTasks.size} tasks")
+        
+        timerJob = serviceScope.launch {
+            while (activeTasks.isNotEmpty()) {
+                delay(TIMER_UPDATE_INTERVAL_MS)
+                
+                val currentTime = Clock.System.now().epochSeconds
+                val updatedTasks = mutableListOf<TaskItem>()
+                
+                // Update each active task
+                activeTasks.values.toList().forEach { task ->
+                    if (task.isActive && task.startTimeStamp != 0L) {
+                        // Calculate elapsed time since start
+                        val elapsedSeconds = currentTime - task.startTimeStamp
+                        val newTimeSeconds = task.timeSeconds + 1 // Increment by 1 second
+                        val newTimeHours = newTimeSeconds / 3600.0
+                        
+                        val updatedTask = task.copy(
+                            timeSeconds = newTimeSeconds,
+                            timeHours = newTimeHours
+                        )
+                        
+                        // Update in memory
+                        activeTasks[task.id] = updatedTask
+                        updatedTasks.add(updatedTask)
+                    }
+                }
+                
+                if (updatedTasks.isNotEmpty()) {
+                    // Update notifications
+                    updateAllNotifications()
+                    
+                    // Persist to database (async)
+                    launch(Dispatchers.IO) {
+                        updatedTasks.forEach { task ->
+                            try {
+                                taskRepository.updateTask(task)
+                                println("SimpleTaskNotificationService: Updated task ${task.id} in DB: ${task.timeSeconds}s")
+                            } catch (e: Exception) {
+                                println("SimpleTaskNotificationService: Failed to update task ${task.id} in DB: ${e.message}")
+                            }
+                        }
+                    }
+                    
+                    // Update Redux state
+                    reduxStore?.let { store ->
+                        updatedTasks.forEach { task ->
+                            store.dispatch(HomeScreenAction.TaskUpdated(task))
+                        }
+                    }
+                }
+            }
+            
+            println("SimpleTaskNotificationService: Timer loop ended - no active tasks")
         }
-        
-        // Note: Notification updates are now handled by AlarmManager via TimerUpdateService
-        // This ensures notifications continue updating even when app is in background
+    }
+    
+    private fun stopTimerLoop() {
+        println("SimpleTaskNotificationService: Stopping timer loop")
+        timerJob?.cancel()
+        timerJob = null
     }
     
     override fun onDestroy() {
         super.onDestroy()
-        updateJob?.cancel()
+        println("SimpleTaskNotificationService: onDestroy")
         
-        // Stop AlarmManager timer work
-        TaskTimerAlarmManager.stopTimerAlarm(this)
+        // Stop timer loop
+        stopTimerLoop()
         
         // Cancel all task notifications
         activeTasks.keys.forEach { taskId ->
             notificationManager.cancel(NOTIFICATION_ID_BASE + taskId)
         }
+        
+        activeTasks.clear()
     }
     
     private fun formatTime(seconds: Long): String {

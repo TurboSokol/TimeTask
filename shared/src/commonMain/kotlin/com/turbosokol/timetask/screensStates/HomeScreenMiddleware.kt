@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.datetime.Clock
 
 /***
  *If this code runs it was created by Evgenii Sokol.
@@ -102,8 +103,13 @@ class HomeScreenMiddleware(
     private fun handleStartTimer(action: HomeScreenAction.StartTaskTimer, state: AppState): Flow<Action> = flow {
         val currentTask = state.getHomeScreenState().tasks.find { it.id == action.taskId }
         if (currentTask != null && !currentTask.isActive) {
-            val updatedTask = currentTask.copy(isActive = true)
-            println("HomeScreenMiddleware: StartTaskTimer - Task ${action.taskId} starting")
+            // Set startTimeStamp to current time in seconds (equivalent to System.currentTimeMillis() / 1000)
+            val startTimeStamp = Clock.System.now().epochSeconds
+            val updatedTask = currentTask.copy(
+                isActive = true,
+                startTimeStamp = startTimeStamp
+            )
+            println("HomeScreenMiddleware: StartTaskTimer - Task ${action.taskId} starting at timestamp $startTimeStamp")
             
             taskRepository.updateTask(updatedTask).onSuccess { 
                 emit(HomeScreenAction.TaskUpdated(updatedTask))
@@ -116,7 +122,10 @@ class HomeScreenMiddleware(
     private fun handlePauseTimer(action: HomeScreenAction.PauseTaskTimer, state: AppState): Flow<Action> = flow {
         val currentTask = state.getHomeScreenState().tasks.find { it.id == action.taskId }
         if (currentTask != null && currentTask.isActive) {
-            val updatedTask = currentTask.copy(isActive = false)
+            val updatedTask = currentTask.copy(
+                isActive = false,
+                startTimeStamp = 0L  // Reset start timestamp when pausing
+            )
             println("HomeScreenMiddleware: PauseTaskTimer - Task ${action.taskId} pausing")
             
             taskRepository.updateTask(updatedTask).onSuccess { 
@@ -134,6 +143,7 @@ class HomeScreenMiddleware(
             val updatedTask = currentTask.copy(
                 timeSeconds = action.timeSeconds,
                 timeHours = action.timeHours
+                // DON'T update startTimeStamp here - it should only be set when starting/pausing/resetting
             )
             
             // For real-time UI updates, we update the state immediately
@@ -155,6 +165,7 @@ class HomeScreenMiddleware(
             val updatedTask = currentTask.copy(
                 timeSeconds = 0L,
                 timeHours = 0.0,
+                startTimeStamp = 0L,  // Reset start timestamp as well
                 isActive = false  // Also stop the timer when resetting
             )
             

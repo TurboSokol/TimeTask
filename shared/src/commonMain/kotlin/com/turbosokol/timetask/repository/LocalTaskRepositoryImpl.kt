@@ -50,6 +50,7 @@ class LocalTaskRepositoryImpl(
             val newTask = TaskItem(
                 title = title,
                 isActive = false,
+                startTimeStamp = 0L,
                 timeSeconds = 0L,
                 timeHours = 0.0,
                 color = color

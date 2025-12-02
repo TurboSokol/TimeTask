@@ -14,6 +14,7 @@ data class Task(
     val id: Int,
     val title: String,
     val isCompleted: Boolean = false,
+    val startTimeStamp: Long = 0,
     val createdAt: Instant,
     val updatedAt: Instant
 )

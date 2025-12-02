@@ -59,6 +59,7 @@ class TaskRepositoryImpl(
             val newTask = TaskItem(
                 title = title,
                 isActive = false,
+                startTimeStamp = 0L,
                 timeSeconds = 0L,
                 timeHours = 0.0,
                 color = color
@@ -86,6 +87,7 @@ class TaskRepositoryImpl(
                     id = task.id,
                     title = task.title,
                     isActive = task.isActive,
+                    startTimeStamp = task.startTimeStamp,
                     timeSeconds = task.timeSeconds,
                     timeHours = task.timeHours,
                     color = task.color.name

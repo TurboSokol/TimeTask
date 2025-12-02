@@ -22,6 +22,7 @@ import com.turbosokol.TimeTask.navigation.NavigationMiddleware
 import com.turbosokol.TimeTask.screensStates.HomeScreenMiddleware
 import com.turbosokol.TimeTask.service.TimerService
 import com.turbosokol.TimeTask.service.TimerUpdateService
+import com.turbosokol.TimeTask.service.SimpleTaskNotificationService
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
@@ -79,6 +80,9 @@ val androidTimerModule = module {
         
         // Initialize TimerUpdateService with the Redux store
         TimerUpdateService.initialize(store)
+        
+        // Initialize SimpleTaskNotificationService with the Redux store
+        SimpleTaskNotificationService.initialize(store)
         
         store
     }

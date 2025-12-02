@@ -12,6 +12,7 @@ data class TaskItem(
     val id: Int = 0, // ID from database, 0 for new tasks
     val title: String,
     val isActive: Boolean,
+    val startTimeStamp: Long,
     val timeSeconds: Long,
     val timeHours: Double,
     val color: TaskColor
@@ -41,7 +42,7 @@ sealed class HomeScreenAction : Action {
     // Timer actions
     data class StartTaskTimer(val taskId: Int) : HomeScreenAction()
     data class PauseTaskTimer(val taskId: Int) : HomeScreenAction()
-    data class UpdateTaskTime(val taskId: Int, val timeSeconds: Long, val timeHours: Double) : HomeScreenAction()
+    data class UpdateTaskTime(val taskId: Int, val timeSeconds: Long, val timeHours: Double, val timeStamp: Long) : HomeScreenAction()
     data class ResetTaskTime(val taskId: Int) : HomeScreenAction()
     
     // Task management actions

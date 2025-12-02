@@ -57,7 +57,6 @@ import com.turbosokol.TimeTask.screensStates.TaskItem
 import com.turbosokol.TimeTask.values.Colors
 import com.turbosokol.TimeTask.values.Dimensions
 import com.turbosokol.TimeTask.viewmodel.ReduxViewModel
-import kotlinx.coroutines.delay
 import org.koin.compose.koinInject
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -104,38 +103,11 @@ fun HomeScreen(viewModel: ReduxViewModel) {
 
     // Update notifications when active tasks change
     LaunchedEffect(activeTasks) {
-        println("HomeScreen: LaunchedEffect triggered - updating notifications for ${activeTasks.size} active tasks")
-        // Pass only active tasks to notification manager for efficiency
         notificationManager.updateNotifications(activeTasks)
     }
-    
-    // Real-time UI timer updates for active tasks
-    LaunchedEffect(homeState.tasks) {
-        val currentActiveTasks = homeState.tasks.filter { it.isActive }
-        if (currentActiveTasks.isNotEmpty()) {
-            while (true) {
-                delay(1000L) // Update every second
-                
-                // Get latest state snapshot
-                val latestState = viewModel.store.observeState().value.getHomeScreenState()
-                val latestActiveTasks = latestState.tasks.filter { it.isActive }
-                
-                if (latestActiveTasks.isEmpty()) {
-                    // No active tasks, exit the loop
-                    break
-                }
-                
-                // Update timer values in Redux state for all active tasks
-                latestActiveTasks.forEach { task ->
-                    viewModel.execute(HomeScreenAction.UpdateTaskTime(
-                        taskId = task.id,
-                        timeSeconds = task.timeSeconds + 1L,
-                        timeHours = (task.timeSeconds + 1L) / 3600.0
-                    ))
-                }
-            }
-        }
-    }
+
+    // Timer updates are now handled by SimpleTaskNotificationService (foreground service)
+    // which updates Redux state directly. UI just observes and displays the state.
 
     // Bottom sheet state management
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
@@ -521,10 +493,12 @@ fun TaskItemCard(
 
                 // Start/Pause button
                 Button(
-                    onClick = { 
+                    onClick = {
                         viewModel.execute(
-                                if(task.isActive) HomeScreenAction.PauseTaskTimer(task.id) else HomeScreenAction.StartTaskTimer(task.id)
+                            if (task.isActive) HomeScreenAction.PauseTaskTimer(task.id) else HomeScreenAction.StartTaskTimer(
+                                task.id
                             )
+                        )
                     },
                     modifier = Modifier.size(50.dp),
                     shape = RoundedCornerShape(20.dp),

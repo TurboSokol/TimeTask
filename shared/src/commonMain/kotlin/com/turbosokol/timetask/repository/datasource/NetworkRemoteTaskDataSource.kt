@@ -33,6 +33,7 @@ class NetworkRemoteTaskDataSource : RemoteTaskDataSource {
             id = (1..1000).random(), // Server would assign actual ID
             title = request.title,
             isActive = false,
+            startTimeStamp = 0L,
             timeSeconds = 0L,
             timeHours = 0.0,
             color = request.color
@@ -45,6 +46,7 @@ class NetworkRemoteTaskDataSource : RemoteTaskDataSource {
             id = request.id,
             title = request.title,
             isActive = request.isActive,
+            startTimeStamp = request.startTimeStamp,
             timeSeconds = request.timeSeconds,
             timeHours = request.timeHours,
             color = request.color

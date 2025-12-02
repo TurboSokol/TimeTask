@@ -48,6 +48,9 @@ kotlin {
             // Serialization
             implementation(libs.kotlinx.serialization.json)
             
+            // Date/Time
+            implementation(libs.kotlinx.datetime)
+            
             // Ktor Client
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.contentNegotiation)
