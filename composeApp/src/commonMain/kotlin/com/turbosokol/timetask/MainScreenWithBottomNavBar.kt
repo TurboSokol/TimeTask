@@ -42,56 +42,8 @@ fun MainScreenWithBottomNavBar() {
     }
 
 
-    MaterialTheme {
-        Scaffold(
-//            bottomBar = {
-//                Surface(
-//                    shape = RoundedCornerShape(
-//                        topStart = Dimensions.cornerMedium,
-//                        topEnd = Dimensions.cornerMedium
-//                    ),
-//                    tonalElevation = Dimensions.elevationMedium
-//                ) {
-//                    NavigationBar(
-//                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-//                        windowInsets = WindowInsets(5, 15, 5, 1),
-//                        modifier = Modifier.height(Dimensions.navBarHeight)
-//                    ) {
-//
-//                        val tabsList = listOf<NavigationTabs>(
-//                            NavigationTabs.HOME
-//                        )
-//
-//                        tabsList.forEach { tab ->
-//                            val (title, icon, action) = when (tab) {
-//                                NavigationTabs.HOME -> Triple(
-//                                    "Home",
-//                                    Icons.Outlined.Chair,
-//                                    NavigationAction.HomeScreen(appState.getHomeScreenState())
-//                                )
-//                            }
-//
-//                            IQBottomNavItemView(
-//                                modifier = Modifier,
-//                                icon = { Icon(imageVector = icon, contentDescription = null) },
-//                                label = {
-//                                    Text(
-//                                        text = title,
-//                                        fontSize = Dimensions.textHeader3
-//                                    )
-//                                },
-//                                selected = selectedTab == tab,
-//                                alwaysShowLabel = true,
-//                                onClick = { viewModel.execute(action) },
-//                                selectedContentColor = MaterialTheme.colorScheme.tertiary,
-//                                unselectedContentColor = MaterialTheme.colorScheme.onPrimary
-//                            )
-//                        }
-//                    }
-//                }
-//
-//            }
-        ) { paddingValues ->
+    MaterialTheme() {
+        Scaffold() { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
                 when (selectedTab) {
                     NavigationTabs.HOME -> HomeScreen(viewModel)

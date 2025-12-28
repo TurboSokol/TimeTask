@@ -24,6 +24,7 @@ class SqlDelightLocalTaskDataSource(
                 title = task.title,
                 isActive = task.is_active == 1L,
                 startTimeStamp = task.start_time_stamp,
+                overallTime = task.overall_time,
                 timeSeconds = task.time_seconds,
                 timeHours = task.time_hours,
                 color = task.color
@@ -38,6 +39,7 @@ class SqlDelightLocalTaskDataSource(
                 title = task.title,
                 isActive = task.is_active == 1L,
                 startTimeStamp = task.start_time_stamp,
+                overallTime = task.overall_time,
                 timeSeconds = task.time_seconds,
                 timeHours = task.time_hours,
                 color = task.color
@@ -52,6 +54,7 @@ class SqlDelightLocalTaskDataSource(
                 title = task.title,
                 is_active = if (task.isActive) 1L else 0L,
                 start_time_stamp = task.startTimeStamp,
+                overall_time = task.overallTime,
                 time_seconds = task.timeSeconds,
                 time_hours = task.timeHours,
                 color = task.color
@@ -68,6 +71,7 @@ class SqlDelightLocalTaskDataSource(
                 title = task.title,
                 is_active = if (task.isActive) 1L else 0L,
                 start_time_stamp = task.startTimeStamp,
+                overall_time = task.overallTime,
                 time_seconds = task.timeSeconds,
                 time_hours = task.timeHours,
                 color = task.color,

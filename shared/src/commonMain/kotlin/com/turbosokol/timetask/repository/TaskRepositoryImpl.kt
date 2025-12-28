@@ -5,11 +5,9 @@
 
 package com.turbosokol.TimeTask.repository
 
-import com.turbosokol.TimeTask.repository.data.UpdateTaskRequest
 import com.turbosokol.TimeTask.repository.data.toDomain
 import com.turbosokol.TimeTask.repository.data.toDto
 import com.turbosokol.TimeTask.repository.datasource.LocalTaskDataSource
-import com.turbosokol.TimeTask.repository.datasource.RemoteTaskDataSource
 import com.turbosokol.TimeTask.screensStates.TaskItem
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -25,20 +23,20 @@ import kotlinx.coroutines.withContext
  */
 class TaskRepositoryImpl(
     private val localDataSource: LocalTaskDataSource,
-    private val remoteDataSource: RemoteTaskDataSource,
+//    private val remoteDataSource: RemoteTaskDataSource,
     private val ioDispatcher: CoroutineDispatcher
 ) : TaskRepository {
 
     override suspend fun getTasks(forceRefresh: Boolean): Result<List<TaskItem>> = withContext(ioDispatcher) {
         runCatching {
             // If force refresh or local is empty, try remote first
-            if (forceRefresh || localDataSource.getAllTasks().isEmpty()) {
-                val remoteResult = remoteDataSource.getTasks()
-                remoteResult.onSuccess { remoteTasks ->
-                    // Cache remote data locally
-                    localDataSource.upsertTasks(remoteTasks)
-                }
-            }
+//            if (forceRefresh) {
+//                val remoteResult = remoteDataSource.getTasks()
+//                remoteResult.onSuccess { remoteTasks ->
+//                    // Cache remote data locally
+//                    localDataSource.upsertTasks(remoteTasks)
+//                }
+//            }
             
             // Always return from local cache (single source of truth)
             localDataSource.getAllTasks().map { it.toDomain() }
@@ -60,6 +58,7 @@ class TaskRepositoryImpl(
                 title = title,
                 isActive = false,
                 startTimeStamp = 0L,
+                overallTime = 0L,
                 timeSeconds = 0L,
                 timeHours = 0.0,
                 color = color
@@ -80,23 +79,23 @@ class TaskRepositoryImpl(
         runCatching {
             // Update locally first
             localDataSource.upsertTask(task.toDto())
-            
-            // Sync to remote
-            try {
-                val updateRequest = UpdateTaskRequest(
-                    id = task.id,
-                    title = task.title,
-                    isActive = task.isActive,
-                    startTimeStamp = task.startTimeStamp,
-                    timeSeconds = task.timeSeconds,
-                    timeHours = task.timeHours,
-                    color = task.color.name
-                )
-                remoteDataSource.updateTask(updateRequest)
-            } catch (e: Exception) {
-                // Network error - changes stay local until next sync
-                println("TaskRepository: Failed to sync task update to remote - ${e.message}")
-            }
+//
+//            // Sync to remote
+//            try {
+//                val updateRequest = UpdateTaskRequest(
+//                    id = task.id,
+//                    title = task.title,
+//                    isActive = task.isActive,
+//                    startTimeStamp = task.startTimeStamp,
+//                    timeSeconds = task.timeSeconds,
+//                    timeHours = task.timeHours,
+//                    color = task.color.name
+//                )
+//                remoteDataSource.updateTask(updateRequest)
+//            } catch (e: Exception) {
+//                // Network error - changes stay local until next sync
+//                println("TaskRepository: Failed to sync task update to remote - ${e.message}")
+//            }
             
             task
         }
@@ -106,35 +105,35 @@ class TaskRepositoryImpl(
         runCatching {
             // Delete locally first
             localDataSource.deleteTask(id)
-            
-            // Sync deletion to remote
-            try {
-                remoteDataSource.deleteTask(id)
-            } catch (e: Exception) {
-                // Network error - deletion stays local until next sync
-                println("TaskRepository: Failed to sync task deletion to remote - ${e.message}")
-            }
+//
+//            // Sync deletion to remote
+//            try {
+//                remoteDataSource.deleteTask(id)
+//            } catch (e: Exception) {
+//                // Network error - deletion stays local until next sync
+//                println("TaskRepository: Failed to sync task deletion to remote - ${e.message}")
+//            }
             Unit
         }
     }
 
     override suspend fun syncWithRemote(): Result<Unit> = withContext(ioDispatcher) {
         runCatching {
-            // Get all local tasks
-            val localTasks = localDataSource.getAllTasks()
-            
-            // Sync to remote
-            val syncResult = remoteDataSource.syncTasks(localTasks)
-            syncResult.onSuccess { syncedTasks ->
-                // Update local with any server changes
-                localDataSource.upsertTasks(syncedTasks)
-            }
-            
-            // Also fetch any new tasks from remote
-            val remoteResult = remoteDataSource.getTasks()
-            remoteResult.onSuccess { remoteTasks ->
-                localDataSource.upsertTasks(remoteTasks)
-            }
+//            // Get all local tasks
+//            val localTasks = localDataSource.getAllTasks()
+//
+//            // Sync to remote
+//            val syncResult = remoteDataSource.syncTasks(localTasks)
+//            syncResult.onSuccess { syncedTasks ->
+//                // Update local with any server changes
+//                localDataSource.upsertTasks(syncedTasks)
+//            }
+//
+//            // Also fetch any new tasks from remote
+//            val remoteResult = remoteDataSource.getTasks()
+//            remoteResult.onSuccess { remoteTasks ->
+//                localDataSource.upsertTasks(remoteTasks)
+//            }
             Unit
         }
     }

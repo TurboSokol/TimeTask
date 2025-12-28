@@ -13,6 +13,8 @@ data class TaskItem(
     val title: String,
     val isActive: Boolean,
     val startTimeStamp: Long,
+    //time for store elapsed time when task in pause
+    val overallTime: Long,
     val timeSeconds: Long,
     val timeHours: Double,
     val color: TaskColor
@@ -42,14 +44,27 @@ sealed class HomeScreenAction : Action {
     // Timer actions
     data class StartTaskTimer(val taskId: Int) : HomeScreenAction()
     data class PauseTaskTimer(val taskId: Int) : HomeScreenAction()
-    data class UpdateTaskTime(val taskId: Int, val timeSeconds: Long, val timeHours: Double, val timeStamp: Long) : HomeScreenAction()
+    data class UpdateTaskTime(
+        val taskId: Int,
+        val timeSeconds: Long,
+        val timeHours: Double,
+        val timeStamp: Long
+    ) : HomeScreenAction()
+
     data class ResetTaskTime(val taskId: Int) : HomeScreenAction()
-    
+
     // Task management actions
     data class CreateTask(val title: String, val color: TaskItem.TaskColor) : HomeScreenAction()
-    data class EditTask(val taskId: Int, val title: String, val color: TaskItem.TaskColor, val timeSeconds: Long, val timeHours: Double) : HomeScreenAction()
+    data class EditTask(
+        val taskId: Int,
+        val title: String,
+        val color: TaskItem.TaskColor,
+        val timeSeconds: Long,
+        val timeHours: Double
+    ) : HomeScreenAction()
+
     data class DeleteTask(val taskId: Int) : HomeScreenAction()
-    
+
     // Repository-driven actions
     object LoadTasks : HomeScreenAction()
     object SyncTasks : HomeScreenAction()
@@ -60,7 +75,4 @@ sealed class HomeScreenAction : Action {
     data class TaskDeleted(val taskId: Int) : HomeScreenAction()
     object AppStateSaved : HomeScreenAction()  // Confirmation of successful save
     data class TaskOperationFailed(val message: String) : HomeScreenAction()
-    
-    // Background service actions
-    data class BackgroundTimerUpdate(val taskId: Int, val timeSeconds: Long, val timeHours: Double) : HomeScreenAction()
 }

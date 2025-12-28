@@ -34,6 +34,7 @@ class NetworkRemoteTaskDataSource : RemoteTaskDataSource {
             title = request.title,
             isActive = false,
             startTimeStamp = 0L,
+            overallTime = 0L,
             timeSeconds = 0L,
             timeHours = 0.0,
             color = request.color
@@ -47,6 +48,7 @@ class NetworkRemoteTaskDataSource : RemoteTaskDataSource {
             title = request.title,
             isActive = request.isActive,
             startTimeStamp = request.startTimeStamp,
+            overallTime = request.overallTime,
             timeSeconds = request.timeSeconds,
             timeHours = request.timeHours,
             color = request.color

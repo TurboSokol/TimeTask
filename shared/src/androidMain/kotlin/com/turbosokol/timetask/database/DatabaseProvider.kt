@@ -27,7 +27,7 @@ object DatabaseProvider {
         if (!_isInitialized) {
             Log.d(TAG, "Initializing Android database...")
             val driver = createAndInitializeDriver(context)
-            _database = TaskDatabase(driver)
+            _database = TaskDatabase.Companion(driver)
             _isInitialized = true
             Log.d(TAG, "Android database initialized successfully")
         }
@@ -55,7 +55,7 @@ object DatabaseProvider {
 //        }
 
         // AndroidSqliteDriver automatically handles schema creation and persistence
-        val driver: SqlDriver = AndroidSqliteDriver(TaskDatabase.Schema, context, "task_database.db")
+        val driver: SqlDriver = AndroidSqliteDriver(TaskDatabase.Companion.Schema, context, "task_database.db")
         
         Log.d(TAG, "Android SQLite driver created successfully")
         

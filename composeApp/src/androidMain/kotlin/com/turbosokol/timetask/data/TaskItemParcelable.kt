@@ -18,6 +18,7 @@ data class TaskItemParcelable(
     val title: String,
     val isActive: Boolean,
     val startTimeStamp: Long,
+    val overallTime: Long,
     val timeSeconds: Long,
     val timeHours: Double,
     val color: String
@@ -29,6 +30,7 @@ data class TaskItemParcelable(
         parcel.readByte() != 0.toByte(),
         parcel.readLong(),
         parcel.readLong(),
+        parcel.readLong(),
         parcel.readDouble(),
         parcel.readString() ?: "DEFAULT"
     )
@@ -38,6 +40,7 @@ data class TaskItemParcelable(
         parcel.writeString(title)
         parcel.writeByte(if (isActive) 1 else 0)
         parcel.writeLong(startTimeStamp)
+        parcel.writeLong(overallTime)
         parcel.writeLong(timeSeconds)
         parcel.writeDouble(timeHours)
         parcel.writeString(color)
@@ -63,6 +66,7 @@ data class TaskItemParcelable(
             title = title,
             isActive = isActive,
             startTimeStamp = startTimeStamp,
+            overallTime = overallTime,
             timeSeconds = timeSeconds,
             timeHours = timeHours,
             color = try {
@@ -80,6 +84,7 @@ fun TaskItem.toParcelable(): TaskItemParcelable {
         title = title,
         isActive = isActive,
         startTimeStamp = startTimeStamp,
+        overallTime = overallTime,
         timeSeconds = timeSeconds,
         timeHours = timeHours,
         color = color.name

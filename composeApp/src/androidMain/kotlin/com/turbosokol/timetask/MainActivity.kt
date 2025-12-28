@@ -15,9 +15,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import com.turbosokol.TimeTask.localization.PlatformLanguageDetector
-import com.turbosokol.TimeTask.service.ReduxServiceBridge
-import com.turbosokol.TimeTask.viewmodel.ReduxViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /***
  *If this code runs it was created by Evgenii Sokol.
@@ -27,7 +24,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
     private var languageDetector: PlatformLanguageDetector? = null
-    private val viewModel: ReduxViewModel by viewModel()
     
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -53,15 +49,12 @@ class MainActivity : ComponentActivity() {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
-
-        // Initialize Redux service bridge
-        ReduxServiceBridge.getInstance().initialize(viewModel.store)
         
         setContent {
             val context = LocalContext.current
             languageDetector = remember { PlatformLanguageDetector() }
             languageDetector?.setContext(context)
-            
+
             MainScreenWithBottomNavBar()
         }
     }

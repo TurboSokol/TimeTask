@@ -14,10 +14,10 @@ import com.turbosokol.TimeTask.core.redux.app.AppState
 import com.turbosokol.TimeTask.core.redux.app.RootReducer
 import com.turbosokol.TimeTask.navigation.NavigationMiddleware
 import com.turbosokol.TimeTask.navigation.NavigationReducer
-import com.turbosokol.TimeTask.repository.LocalTaskRepositoryImpl
 import com.turbosokol.TimeTask.repository.MainNetworkApi
 import com.turbosokol.TimeTask.repository.MainNetworkApiImpl
 import com.turbosokol.TimeTask.repository.TaskRepository
+import com.turbosokol.TimeTask.repository.TaskRepositoryImpl
 import com.turbosokol.TimeTask.screensStates.HomeScreenMiddleware
 import com.turbosokol.TimeTask.screensStates.HomeScreenReducer
 import kotlinx.coroutines.CoroutineDispatcher
@@ -63,23 +63,14 @@ val storeModule = module {
     single { AppReducer() }
     single { NavigationReducer() }
     single { HomeScreenReducer() }
-    single { HomeScreenMiddleware(get<TaskRepository>()) }
+    single { HomeScreenMiddleware(get()) }
 }
 
 val repositoryModule = module {
     // Data sources - platform-specific implementations will be provided by databaseModule()
     // Note: RemoteTaskDataSource removed for now - will add back when remote is ready
-    
-    // Coroutine dispatcher
     single<CoroutineDispatcher> { Dispatchers.Default }
-    
-    // Repository - using local-only implementation for now
-    single<TaskRepository> { 
-        LocalTaskRepositoryImpl(
-            localDataSource = get(),
-            ioDispatcher = get()
-        )
-    }
+    single<TaskRepository> { TaskRepositoryImpl(get(), get()) }
 }
 
 val apiModule = module {

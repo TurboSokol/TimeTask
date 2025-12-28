@@ -23,7 +23,7 @@ import kotlinx.datetime.Clock
 class HomeScreenMiddleware(
     private val taskRepository: TaskRepository
 ) : Middleware<AppState> {
-    
+
     override suspend fun execute(
         state: AppState,
         action: Action,
@@ -40,11 +40,10 @@ class HomeScreenMiddleware(
             is HomeScreenAction.LoadTasks -> handleLoadTasks()
             is HomeScreenAction.SyncTasks -> handleSyncTasks()
             is HomeScreenAction.SaveAppState -> handleSaveAppState(state)
-            is HomeScreenAction.BackgroundTimerUpdate -> handleBackgroundTimerUpdate(action, state)
             else -> emptyFlow()
         }
     }
-    
+
     private fun handleCreateTask(action: HomeScreenAction.CreateTask): Flow<Action> = flow {
         taskRepository.createTask(
             title = action.title,
@@ -55,25 +54,26 @@ class HomeScreenMiddleware(
             emit(HomeScreenAction.TaskOperationFailed("Failed to create task: ${error.message}"))
         }
     }
-    
-    private fun handleEditTask(action: HomeScreenAction.EditTask, state: AppState): Flow<Action> = flow {
-        val currentTask = state.getHomeScreenState().tasks.find { it.id == action.taskId }
-        if (currentTask != null) {
-            val updatedTask = currentTask.copy(
-                title = action.title,
-                color = action.color,
-                timeSeconds = action.timeSeconds,
-                timeHours = action.timeHours
-            )
-            
-            taskRepository.updateTask(updatedTask).onSuccess { 
-                emit(HomeScreenAction.TaskUpdated(updatedTask))
-            }.onFailure { error ->
-                emit(HomeScreenAction.TaskOperationFailed("Failed to update task: ${error.message}"))
+
+    private fun handleEditTask(action: HomeScreenAction.EditTask, state: AppState): Flow<Action> =
+        flow {
+            val currentTask = state.getHomeScreenState().tasks.find { it.id == action.taskId }
+            if (currentTask != null) {
+                val updatedTask = currentTask.copy(
+                    title = action.title,
+                    color = action.color,
+                    timeSeconds = action.timeSeconds,
+                    timeHours = action.timeHours
+                )
+
+                taskRepository.updateTask(updatedTask).onSuccess {
+                    emit(HomeScreenAction.TaskUpdated(updatedTask))
+                }.onFailure { error ->
+                    emit(HomeScreenAction.TaskOperationFailed("Failed to update task: ${error.message}"))
+                }
             }
         }
-    }
-    
+
     private fun handleDeleteTask(action: HomeScreenAction.DeleteTask): Flow<Action> = flow {
         taskRepository.deleteTask(action.taskId).onSuccess {
             emit(HomeScreenAction.TaskDeleted(action.taskId))
@@ -81,7 +81,7 @@ class HomeScreenMiddleware(
             emit(HomeScreenAction.TaskOperationFailed("Failed to delete task: ${error.message}"))
         }
     }
-    
+
     private fun handleLoadTasks(): Flow<Action> = flow {
         taskRepository.getTasks(forceRefresh = false).onSuccess { tasks ->
             emit(HomeScreenAction.TasksLoaded(tasks))
@@ -89,7 +89,7 @@ class HomeScreenMiddleware(
             emit(HomeScreenAction.TaskOperationFailed("Failed to load tasks: ${error.message}"))
         }
     }
-    
+
     private fun handleSyncTasks(): Flow<Action> = flow {
         // For now, just reload tasks from local database
         // Remote sync will be added later when remote backend is ready
@@ -100,8 +100,11 @@ class HomeScreenMiddleware(
             emit(HomeScreenAction.TaskOperationFailed("Failed to sync tasks: ${error.message}"))
         }
     }
-    
-    private fun handleStartTimer(action: HomeScreenAction.StartTaskTimer, state: AppState): Flow<Action> = flow {
+
+    private fun handleStartTimer(
+        action: HomeScreenAction.StartTaskTimer,
+        state: AppState
+    ): Flow<Action> = flow {
         val currentTask = state.getHomeScreenState().tasks.find { it.id == action.taskId }
         if (currentTask != null && !currentTask.isActive) {
             // Set startTimeStamp to current time in seconds (equivalent to System.currentTimeMillis() / 1000)
@@ -111,88 +114,105 @@ class HomeScreenMiddleware(
                 startTimeStamp = startTimeStamp
             )
             println("HomeScreenMiddleware: StartTaskTimer - Task ${action.taskId} starting at timestamp $startTimeStamp")
-            
-            taskRepository.updateTask(updatedTask).onSuccess { 
+
+            taskRepository.updateTask(updatedTask).onSuccess {
                 emit(HomeScreenAction.TaskUpdated(updatedTask))
             }.onFailure { error ->
                 emit(HomeScreenAction.TaskOperationFailed("Failed to start timer: ${error.message}"))
             }
+
+            // Get all active tasks (including the one we just started)
+            val activeTasks = state.getHomeScreenState().tasks
+                .map { if (it.id == action.taskId) updatedTask else it }
+                .filter { it.isActive }
+
+
+            println("TimerService: Started timer for task ${action.taskId} - ${activeTasks.size} active tasks")
         }
     }
-    
-    private fun handlePauseTimer(action: HomeScreenAction.PauseTaskTimer, state: AppState): Flow<Action> = flow {
+
+    private fun handlePauseTimer(
+        action: HomeScreenAction.PauseTaskTimer,
+        state: AppState
+    ): Flow<Action> = flow {
         val currentTask = state.getHomeScreenState().tasks.find { it.id == action.taskId }
         if (currentTask != null && currentTask.isActive) {
             val updatedTask = currentTask.copy(
+                overallTime = (Clock.System.now().epochSeconds - currentTask.startTimeStamp) + currentTask.overallTime,
                 isActive = false,
                 startTimeStamp = 0L  // Reset start timestamp when pausing
             )
             println("HomeScreenMiddleware: PauseTaskTimer - Task ${action.taskId} pausing")
-            
-            taskRepository.updateTask(updatedTask).onSuccess { 
+
+            taskRepository.updateTask(updatedTask).onSuccess {
                 emit(HomeScreenAction.TaskUpdated(updatedTask))
             }.onFailure { error ->
                 emit(HomeScreenAction.TaskOperationFailed("Failed to pause timer: ${error.message}"))
             }
         }
+
     }
-    
-    
-    private fun handleUpdateTaskTime(action: HomeScreenAction.UpdateTaskTime, state: AppState): Flow<Action> = flow {
+
+
+    private fun handleUpdateTaskTime(
+        action: HomeScreenAction.UpdateTaskTime,
+        state: AppState
+    ): Flow<Action> = flow {
+//        val currentTask = state.getHomeScreenState().tasks.find { it.id == action.taskId }
+//        if (currentTask != null) {
+//            val
+//            val updatedTask = currentTask.copy(
+//                bvnc oversll+
+//                timeSeconds = action.timeSeconds,
+//                timeHours = action.timeHours
+//                // DON'T update startTimeStamp here - it should only be set when starting/pausing/resetting
+//            )
+//
+//            // For real-time UI updates, we update the state immediately
+//            // and also persist to database (but don't wait for database response)
+//            emit(HomeScreenAction.TaskUpdated(updatedTask))
+//
+//            // Persist to database in background (non-blocking)
+//            taskRepository.updateTask(updatedTask).onFailure { error ->
+//                println("HomeScreenMiddleware: Failed to persist timer update for task ${action.taskId}: ${error.message}")
+//                // Note: We don't emit error here to avoid disrupting the timer flow
+//                // The UI state is already updated, database sync will happen via AlarmManager
+//            }
+//        }
+    }
+
+    private fun handleResetTaskTime(
+        action: HomeScreenAction.ResetTaskTime,
+        state: AppState
+    ): Flow<Action> = flow {
         val currentTask = state.getHomeScreenState().tasks.find { it.id == action.taskId }
         if (currentTask != null) {
             val updatedTask = currentTask.copy(
-                timeSeconds = action.timeSeconds,
-                timeHours = action.timeHours
-                // DON'T update startTimeStamp here - it should only be set when starting/pausing/resetting
-            )
-            
-            // For real-time UI updates, we update the state immediately
-            // and also persist to database (but don't wait for database response)
-            emit(HomeScreenAction.TaskUpdated(updatedTask))
-            
-            // Persist to database in background (non-blocking)
-            taskRepository.updateTask(updatedTask).onFailure { error ->
-                println("HomeScreenMiddleware: Failed to persist timer update for task ${action.taskId}: ${error.message}")
-                // Note: We don't emit error here to avoid disrupting the timer flow
-                // The UI state is already updated, database sync will happen via AlarmManager
-            }
-        }
-    }
-    
-    private fun handleResetTaskTime(action: HomeScreenAction.ResetTaskTime, state: AppState): Flow<Action> = flow {
-        val currentTask = state.getHomeScreenState().tasks.find { it.id == action.taskId }
-        if (currentTask != null) {
-            val updatedTask = currentTask.copy(
+                overallTime = 0L,
                 timeSeconds = 0L,
                 timeHours = 0.0,
                 startTimeStamp = 0L,  // Reset start timestamp as well
                 isActive = false  // Also stop the timer when resetting
             )
-            
-            taskRepository.updateTask(updatedTask).onSuccess { 
+
+            taskRepository.updateTask(updatedTask).onSuccess {
                 emit(HomeScreenAction.TaskUpdated(updatedTask))
             }.onFailure { error ->
                 emit(HomeScreenAction.TaskOperationFailed("Failed to reset task time: ${error.message}"))
             }
         }
     }
-    
-    private fun handleSaveAppState(@Suppress("UNUSED_PARAMETER") state: AppState): Flow<Action> = flow {
-        // Save app state - for now just local persistence (all updates are already saved)
-        try {
-            // All task updates are already saved to local database in real-time
-            // Remote sync will be added later when remote backend is ready
-            println("App state saved successfully (local-only mode)")
-            emit(HomeScreenAction.AppStateSaved)
-        } catch (e: Exception) {
-            emit(HomeScreenAction.TaskOperationFailed("Failed to save app state: ${e.message}"))
+
+    private fun handleSaveAppState(@Suppress("UNUSED_PARAMETER") state: AppState): Flow<Action> =
+        flow {
+            // Save app state - for now just local persistence (all updates are already saved)
+            try {
+                // All task updates are already saved to local database in real-time
+                // Remote sync will be added later when remote backend is ready
+                println("App state saved successfully (local-only mode)")
+                emit(HomeScreenAction.AppStateSaved)
+            } catch (e: Exception) {
+                emit(HomeScreenAction.TaskOperationFailed("Failed to save app state: ${e.message}"))
+            }
         }
-    }
-    
-    private fun handleBackgroundTimerUpdate(action: HomeScreenAction.BackgroundTimerUpdate, @Suppress("UNUSED_PARAMETER") state: AppState): Flow<Action> = flow {
-        // Background timer updates are handled directly in the reducer for immediate UI updates
-        // This method exists for consistency but doesn't need to do anything
-        // The reducer already handles BackgroundTimerUpdate actions
-    }
 }
