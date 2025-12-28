@@ -6,17 +6,22 @@
 package com.turbosokol.TimeTask.di
 
 import com.turbosokol.TimeTask.notification.NotificationManager
-import com.turbosokol.TimeTask.notification.TaskNotificationManager
-import org.koin.android.ext.koin.androidContext
+import com.turbosokol.TimeTask.service.TaskNotificationInteractor
+import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
 
 /**
  * Android-specific notification module
  * Provides the actual TaskNotificationManager for Android platform
+ * 
+ * Note: TaskNotificationService is not provided here as Android instantiates it directly.
+ * The service uses KoinComponent to inject dependencies.
  */
 val androidNotificationModule = module {
     single<NotificationManager> { 
-        TaskNotificationManager(androidContext())
+        TaskNotificationInteractor(
+            context = androidApplication()
+        )
     }
 }
 

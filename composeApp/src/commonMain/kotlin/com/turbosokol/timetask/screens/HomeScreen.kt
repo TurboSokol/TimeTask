@@ -57,7 +57,6 @@ import com.turbosokol.TimeTask.screensStates.TaskItem
 import com.turbosokol.TimeTask.values.Colors
 import com.turbosokol.TimeTask.values.Dimensions
 import com.turbosokol.TimeTask.viewmodel.ReduxViewModel
-import org.koin.compose.koinInject
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
@@ -102,13 +101,10 @@ fun HomeScreen(viewModel: ReduxViewModel) {
         homeState.tasks.filter { it.isActive }
     }
 
-    // Update notifications when active tasks change
+    // Update notifications when active tasks changed from UI
     LaunchedEffect(activeTasks) {
         notificationManager.updateNotifications(activeTasks)
     }
-
-    // Timer updates are now handled by SimpleTaskNotificationService (foreground service)
-    // which updates Redux state directly. UI just observes and displays the state.
 
     // Bottom sheet state management
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
@@ -309,7 +305,7 @@ fun HomeScreen(viewModel: ReduxViewModel) {
                             FloatingActionButton(
                                 onClick = {
                                     // Prepare for creating new task
-                                    isCreatingTask = true
+                                    isCreatingTask
                                     editingTask = null
                                     taskTitle = ""
                                     selectedColor = TaskItem.TaskColor.DEFAULT

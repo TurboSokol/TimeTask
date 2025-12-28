@@ -12,7 +12,7 @@ import com.turbosokol.TimeTask.screensStates.TaskItem
  * Used for iOS, WASM, and other non-Android platforms
  */
 class NoOpNotificationManager : NotificationManager {
-    
+
     override fun updateNotifications(tasks: List<TaskItem>) {
         // No-op for non-Android platforms
         // Note: tasks parameter contains only active tasks from HomeScreen

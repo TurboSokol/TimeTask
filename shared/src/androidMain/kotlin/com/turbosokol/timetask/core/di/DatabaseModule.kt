@@ -22,7 +22,7 @@ actual fun databaseModule() = module {
         DatabaseProvider.initializeDatabase(androidContext())
     }
     
-    single<LocalTaskDataSource> { 
+    single<LocalTaskDataSource> {
         SqlDelightLocalTaskDataSource(get())
     }
     

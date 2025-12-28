@@ -21,7 +21,7 @@ actual fun databaseModule() = module {
         DatabaseProvider.initializeDatabase()
     }
     
-    single<LocalTaskDataSource> { 
+    single<LocalTaskDataSource> {
         SqlDelightLocalTaskDataSource(get())
     }
     
